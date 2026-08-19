@@ -205,16 +205,18 @@
     }
 
     playBtn.addEventListener('click', () => setPlaying(!st.playing));
+    /* Номер текущего кадра берём тем же округлением вниз, что и надпись
+       «кадр N / M»: с Math.round шаг вперёд из середины кадра перескакивал
+       через один и счётчик прыгал на два. */
+    const frameNo = () => Math.floor(st.u * frames + 1e-9);
     box.querySelector('[data-role=prev]').addEventListener('click', () => {
       setPlaying(false);
-      const k = Math.round(st.u * frames);
-      st.u = (((k - 1) % frames) + frames) % frames / frames;
+      st.u = (((frameNo() - 1) % frames) + frames) % frames / frames;
       render();
     });
     box.querySelector('[data-role=next]').addEventListener('click', () => {
       setPlaying(false);
-      const k = Math.round(st.u * frames);
-      st.u = ((k + 1) % frames) / frames;
+      st.u = ((frameNo() + 1) % frames) / frames;
       render();
     });
     speedEl.addEventListener('input', () => {
