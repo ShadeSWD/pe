@@ -106,6 +106,8 @@
     hipHalf: 0.060,        // полуширина таза
     torsoThickSh: 0.068,   // полутолщина груди (спереди назад)
     torsoThickHip: 0.056,  // полутолщина таза
+    heelBack: 0.042,       // вынос пятки назад от щиколотки
+    heelDown: 0.022,       // вынос пятки к подошве
   };
   /* предплечье с кистью как единое звено — то, что задано в пропорциях */
   P.foreHand = P.foreArm + P.hand;
@@ -304,6 +306,11 @@
       pF = V.norm(pF);
       const dFoot = bend(pF, V.mul(dS, 1), j.ankle);
       pts['toe' + s] = V.add(an, V.mul(dFoot, P.foot));
+      /* пятка: выступ назад от щиколотки и вниз, к подошве. Отдельная точка
+         нужна только для силуэта — на длины звеньев она не влияет, зато без
+         неё стопа читается как палка, приклеенная к голени. */
+      pts['heel' + s] = V.add(an,
+        V.add(V.mul(dFoot, -P.heelBack), V.mul(dS, P.heelDown)));
     }
     return pts;
   }
@@ -360,6 +367,12 @@
       screen[k] = { x: q[0] * H, y: q[1] * H };
     }
 
+    /* Проектор направлений: та же линейная часть преобразования, что и у
+       точек скелета. По нему считается силуэт туловища — он должен жить в
+       одной системе с костями, иначе тело «съедет» с плеч. */
+    const dir = dirProj(p, { view, facing, H });
+    const torso = torsoPoly(dir);
+
     /* привязка: в точку (o.x, o.y) ставится таз или указанная точка скелета
        (o.anchor) — так удобно строить крупные планы «колено — стопа». */
     const anchor = screen[o.anchor] ? screen[o.anchor] : screen.hip;
@@ -367,15 +380,17 @@
     let dy = num(o.y, 150) - anchor.y;
     const shift = () => {
       for (const k of Object.keys(screen)) { screen[k].x += dx; screen[k].y += dy; }
+      for (const q of torso) { q.x += dx; q.y += dy; }
     };
     shift();
 
-    /* «спина и затылок на линии воды»: поднимаем тело так, чтобы верх
-       головы и спина легли ровно на поверхность */
-    const backTop = () => Math.min(
-      screen.head.y - P.headR * H,
-      screen.neck.y - P.torsoThickSh * H,
-      screen.hip.y - P.torsoThickHip * H);
+    /* «спина и затылок на линии воды»: поднимаем тело так, чтобы самая
+       верхняя точка силуэта (спина или затылок) легла ровно на поверхность */
+    const backTop = () => {
+      let m = screen.head.y - P.headR * H;
+      for (const q of torso) if (q.y < m) m = q.y;
+      return m;
+    };
     if (o.place === 'surface' && isFinite(o.waterline)) {
       dx = 0; dy = o.waterline - backTop(); shift();
     }
@@ -387,15 +402,30 @@
     const seg = segments(screen, view);
     /* что схема сама о себе утверждает — на это опирается check_anatomy.js:
        surface — «тело лежит у поверхности», проверяем глубину спины;
-       sag     — «таз провален намеренно, это и есть показанная ошибка». */
+       sag     — «таз провален намеренно, это и есть показанная ошибка»;
+       plan    — 'wide' значит «общий план»: фигура намеренно мелкая, потому
+                 что на доске показано её перемещение по дорожке или это
+                 врезка «та же поза сбоку». Для всего остального действует
+                 требование к крупности (см. tools/check_anatomy.js). */
     const declared = {
       surface: o.place === 'surface' || o.surface === true,
       sag: !!o.sag,
+      torso: o.torso !== false,
+      head: o.head !== false,
+      arms: o.arms !== false,
+      legs: o.legs !== false,
     };
     const res = {
-      pose: p, opts: { H, view, facing, waterline: wl }, pts: screen,
-      local, world, seg, depth, backTop: backTop(), declared, P,
+      pose: p,
+      opts: {
+        H, view, facing, waterline: wl,
+        board: num(o.board, 640),
+        plan: o.plan === 'wide' ? 'wide' : 'near',
+      },
+      pts: screen, local, world, seg, depth, torso, backTop: backTop(), declared, P,
     };
+    res.parts = buildParts(res, o);
+    res.span = spanOf(res.parts);
     if (REC.on) REC.log.push({ where: o.where || p.name || '', res });
     return res;
   }
@@ -441,129 +471,337 @@
   /* ---------- 6. отрисовка ---------- */
 
   const C = {
-    ink: '#16161a', skin: '#e8eef2', far: '#a9b3ba', water: '#155e75',
-    red: '#b3382e', green: '#1a7f37', gray: '#6b6b74',
+    ink: '#16161a', skin: '#e8eef2', far: '#a9b3ba', farSkin: '#dde4e9',
+    water: '#155e75', red: '#b3382e', green: '#1a7f37', gray: '#6b6b74',
   };
 
   const n1 = (v) => Math.round(v * 10) / 10;
-  const ln = (a, b, st, w, extra) =>
-    `<line x1="${n1(a.x)}" y1="${n1(a.y)}" x2="${n1(b.x)}" y2="${n1(b.y)}" stroke="${st}"`
-    + ` stroke-width="${n1(w)}" stroke-linecap="round"${extra || ''}/>`;
-  const ci = (c, r, fill, st, w) =>
-    `<circle cx="${n1(c.x)}" cy="${n1(c.y)}" r="${n1(r)}" fill="${fill || 'none'}"`
-    + (st ? ` stroke="${st}" stroke-width="${n1(w || 1.4)}"` : '') + '/>';
 
-  /* Полуразмер сечения тела поперёк оси на экране. Сечение — эллипс с
-     полуосями «вбок» и «вперёд-назад»; проецируем его честно, иначе вид
-     сверху и вид сбоку дают разную толщину одного и того же туловища. */
-  function halfExtent(res, latHalf, venHalf, nx, ny) {
-    const p = VIEWS[res.opts.view], f = res.opts.facing, H = res.opts.H;
-    const cr = Math.cos(rad(res.pose.roll)), sr = Math.sin(rad(res.pose.roll));
-    const ct = Math.cos(rad(res.pose.tilt)), st = Math.sin(rad(res.pose.tilt));
-    const tr = (v) => {
-      const y1 = v[1] * cr - v[2] * sr, z1 = v[1] * sr + v[2] * cr;
-      return p([v[0] * ct + y1 * st, -v[0] * st + y1 * ct, z1], f);
-    };
-    const a = tr([0, 0, latHalf]), b = tr([0, venHalf, 0]);
-    const pa = (a[0] * nx + a[1] * ny) * H, pb = (b[0] * nx + b[1] * ny) * H;
-    return Math.hypot(pa, pb);
-  }
+  /* ---------- 6.1 силуэт туловища ---------- */
 
-  /* Силуэт туловища: от плечевого пояса к тазу, с честной толщиной в этой
-     проекции. Профиль ширины взят по человеку — самое широкое место у плеч,
-     сужение на талии, небольшое расширение у таза — и продолжен закруглёнными
-     «шапками» за плечи и за таз. Раньше здесь был прямоугольник со скруглённым
-     боком, и тело читалось как доска. */
-  const PROFILE = [
-    [-0.05, 0.52], [0.02, 0.90], [0.12, 1.00], [0.30, 0.96],
-    [0.50, 0.86], [0.66, 0.80], [0.82, 0.87], [0.98, 0.96],
-    [1.12, 0.86], [1.22, 0.48],
+  /* Сечения туловища вдоль оси «плечи → таз». Для каждого сечения задано,
+     насколько тело выходит от продольной оси вбок (lat), вперёд, к животу
+     (ven) и назад, к спине (dor). Всё в долях роста, t — доля отрезка
+     «плечи → таз»: отрицательные значения — надплечья и основание шеи,
+     больше единицы — переход в бёдра.
+     Профиль НЕСИММЕТРИЧЕН, и это главное: вперёд выходит грудная клетка,
+     назад — ягодицы, между ними талия. Симметричная «доска», стоявшая здесь
+     раньше, ни сбоку, ни сверху на человека не походила. */
+  const TORSO = [
+    [-0.13, 0.036, 0.030, 0.028],   // основание шеи
+    [-0.07, 0.070, 0.046, 0.042],   // надплечья
+    [0.00, 0.112, 0.058, 0.054],    // плечевой пояс — самое широкое место
+    [0.16, 0.104, 0.068, 0.052],    // грудь
+    [0.38, 0.092, 0.064, 0.048],    // низ рёбер
+    [0.58, 0.076, 0.052, 0.044],    // талия
+    [0.78, 0.084, 0.050, 0.050],
+    [1.00, 0.094, 0.048, 0.062],    // таз: назад выходит ягодица
+    [1.13, 0.088, 0.040, 0.050],
+    [1.23, 0.062, 0.028, 0.030],    // переход в бёдра
   ];
 
-  function torsoPath(res, fill, stroke, lw) {
-    const a = res.pts.neck, b = res.pts.hip;
-    let dx = b.x - a.x, dy = b.y - a.y;
-    const d = Math.hypot(dx, dy);
-    if (d < 1e-3) { dx = 1; dy = 0; }
-    const ux = dx / (d || 1), uy = dy / (d || 1);      // от плеч к тазу
-    const nx = -uy, ny = ux;
-    const wSh = Math.max(3.2, halfExtent(res, P.shoulderHalf, P.torsoThickSh, nx, ny));
-    const wHip = Math.max(2.6, halfExtent(res, P.hipHalf, P.torsoThickHip, nx, ny));
-    const pt = (t, k) => {
-      const cx = a.x + ux * d * t, cy = a.y + uy * d * t;
-      const w = (wSh + (wHip - wSh) * Math.min(1, Math.max(0, t))) * k;
-      return [cx + nx * w, cy + ny * w, cx - nx * w, cy - ny * w];
-    };
-    const right = [], left = [];
-    for (const [t, k] of PROFILE) {
-      const p = pt(t, k);
-      right.push([p[0], p[1]]);
-      left.unshift([p[2], p[3]]);
+  /* Толщина конечностей: радиус «мяса» вокруг кости у каждого сустава, доли
+     роста. У плеча вдвое толще, чем у запястья; бедро толще голени. Пока эти
+     числа были одним stroke-width, все конечности читались как одинаковые
+     палки, и на схеме нельзя было отличить руку от ноги. */
+  const TH = {
+    shoulder: 0.036, elbow: 0.027, wrist: 0.020, palm: 0.026, finger: 0.007,
+    hipJoint: 0.050, knee: 0.036, ankle: 0.022, heel: 0.019, foot: 0.015,
+    toe: 0.006, neckLow: 0.037, neckUp: 0.028,
+  };
+
+  /* Профиль головы в долях её радиуса: первая координата — по оси взгляда
+     (вперёд), вторая — к макушке. Затылок и темя достраиваются дугой
+     окружности, а здесь записано лицо: лоб, переносица, нос, губы,
+     подбородок. Нос и подбородок выходят за окружность черепа — по ним и
+     видно, куда смотрит пловец, без всякой подписи. */
+  const FACE = [
+    [0.00, 1.00], [0.46, 0.89], [0.80, 0.60],   // темя и лоб
+    [0.94, 0.30], [0.90, 0.15],                 // надбровье и переносица
+    [1.18, -0.02],                              // кончик носа
+    [1.04, -0.18], [1.02, -0.36],               // под носом и губы
+    [0.88, -0.56], [0.54, -0.82],               // подбородок и челюсть
+    [0.16, -0.96], [0.00, -1.00],
+  ];
+  /* Затылочная половина: дуга от подчелюстного края к темени. */
+  const SKULL = (() => {
+    const a = [];
+    for (let i = 1; i < 15; i++) {
+      const t = -Math.PI / 2 - (i / 15) * Math.PI;
+      a.push([Math.cos(t), Math.sin(t)]);
     }
-    const seg = (arr) => arr.map((p, i) => (i ? ' L ' : '') + n1(p[0]) + ' ' + n1(p[1])).join('');
-    const dpath = 'M ' + seg(right) + ' L ' + seg(left) + ' Z';
-    return `<path d="${dpath}" fill="${fill}" stroke="${stroke}" stroke-width="${n1(lw)}"`
-      + ' stroke-linejoin="round"/>';
+    return a;
+  })();
+
+  /* Проектор направлений: линейная часть преобразования «локальные
+     координаты → доска». Точки скелета проходят ровно через него же. */
+  function dirProj(pose, o) {
+    const p = VIEWS[o.view], f = o.facing, H = o.H;
+    const cr = Math.cos(rad(pose.roll)), sr = Math.sin(rad(pose.roll));
+    const ct = Math.cos(rad(pose.tilt)), st = Math.sin(rad(pose.tilt));
+    return (v) => {
+      const y1 = v[1] * cr - v[2] * sr, z1 = v[1] * sr + v[2] * cr;
+      const q = p([v[0] * ct + y1 * st, -v[0] * st + y1 * ct, z1], f);
+      return { x: q[0] * H, y: q[1] * H };
+    };
   }
 
-  /* Одна конечность. Каждое звено рисуется дважды: сначала светлой «обводкой»
-     фона, потом цветом. Обводка нужна не для красоты: в проекции ближняя рука
-     проходит поверх головы и корпуса, и без неё картинка читается как линия,
-     ПЕРЕЧЁРКИВАЮЩАЯ тело, а не как рука перед телом. */
-  function limbSvg(res, names, color, w, o) {
-    const halo = o && o.halo === false ? null : ((o && o.halo) || '#fff');
-    let body = '', edge = '';
-    for (let i = 0; i < names.length - 1; i++) {
-      const k = i === names.length - 2 ? 0.78 : 1;
-      const A = res.pts[names[i]], B = res.pts[names[i + 1]];
-      if (halo) edge += ln(A, B, halo, w * k + 2.6);
-      body += ln(A, B, color, w * k);
-    }
-    if (!o || o.joints !== false) {
-      for (let i = 1; i < names.length - 1; i++) {
-        body += ci(res.pts[names[i]], w * 0.4 + 0.8, color);
+  /* Полуразмер сечения поперёк оси на доске. Сечение — эллипс с полуосями
+     «вбок» и «вперёд-назад»; проецируем его честно, иначе вид сверху и вид
+     сбоку дадут разную толщину одного и того же туловища. */
+  function halfExtent(pr, latHalf, venHalf, nx, ny) {
+    const a = pr([0, 0, latHalf]), b = pr([0, venHalf, 0]);
+    return Math.hypot(a.x * nx + a.y * ny, b.x * nx + b.y * ny);
+  }
+
+  /* Сечения таблицы TORSO, разложенные с мелким шагом: контур строится
+     сглаживанием по опорным точкам, и на редкой сетке углы срезались бы. */
+  const TORSO_FINE = (() => {
+    const out = [];
+    const STEP = 24;
+    for (let i = 0; i < TORSO.length - 1; i++) {
+      const a = TORSO[i], b = TORSO[i + 1];
+      const n = Math.max(1, Math.round((b[0] - a[0]) * STEP));
+      for (let j = 0; j < n; j++) {
+        const k = j / n;
+        out.push([0, 1, 2, 3].map((m) => a[m] + (b[m] - a[m]) * k));
       }
     }
-    return edge + body;
+    out.push(TORSO[TORSO.length - 1]);
+    return out;
+  })();
+
+  /* Замкнутый контур туловища в координатах доски (до привязки). */
+  function torsoPoly(pr) {
+    const ax = pr([-P.torso, 0, 0]);                  // ось: от плеч к тазу
+    const d = Math.hypot(ax.x, ax.y);
+    const ux = d > 1e-6 ? ax.x / d : 1, uy = d > 1e-6 ? ax.y / d : 0;
+    const nx = -uy, ny = ux;
+    const right = [], left = [];
+    for (const [t, lat, ven, dor] of TORSO_FINE) {
+      const c = pr([P.torso * (1 - t), (ven - dor) / 2, 0]);
+      const w = halfExtent(pr, lat, (ven + dor) / 2, nx, ny);
+      right.push({ x: c.x + nx * w, y: c.y + ny * w });
+      left.unshift({ x: c.x - nx * w, y: c.y - ny * w });
+    }
+    return right.concat(left);
   }
 
-  /* Порядок отрисовки: дальние конечности — под телом, ближние — поверх. */
-  function render(res, o) {
-    const near = o.near === 'L' ? 'L' : o.near === 'R' ? 'R' : (o.near === false ? null : 'R');
+  /* ---------- 6.2 сборка частей ---------- */
+
+  /* Все части фигуры в координатах доски: контур туловища, цепочки «мяса»
+     вокруг костей и голова. Считается в solve, а не в render, потому что по
+     этим же данным tools/check_anatomy.js меряет крупность фигуры и
+     наползание головы на корпус. */
+  function buildParts(res, o) {
+    const H = res.opts.H, p = res.pts, k = o.thick || 1;
+    const r = (key) => TH[key] * H * k;
+    const nd = (key, rr) => ({ x: p[key].x, y: p[key].y, r: rr });
+    const mid = (a, b, t, rr) =>
+      ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, r: rr });
+    /* Единичный вектор оси тела на доске, от плеч к тазу. По нему корни
+       конечностей уводятся ВНУТРЬ корпуса: иначе круглая «шапка» звена
+       ложится по краю силуэта и на схеме появляется лишняя дуга поперёк
+       плеча или таза. Направление самого звена от этого не меняется. */
+    const adx = p.hip.x - p.neck.x, ady = p.hip.y - p.neck.y;
+    const aL = Math.hypot(adx, ady) || 1;
+    const root = (q, d, rr) =>
+      ({ x: p[q].x + adx / aL * d, y: p[q].y + ady / aL * d, r: rr });
+
+    const near = o.near === 'L' ? 'L' : o.near === 'R' ? 'R'
+      : (o.near === false ? null : 'R');
     /* far = false — рисуем только ближнюю сторону (крупные планы одной ноги) */
-    const far = o.far === false ? null : (near === 'R' ? 'L' : near === 'L' ? 'R' : null);
+    const far = o.far === false ? null
+      : (near === 'R' ? 'L' : near === 'L' ? 'R' : null);
+    const showArms = o.arms !== false, showLegs = o.legs !== false;
+
+    const chains = [];
+    const sides = [];
+    if (far) sides.push({ s: far, near: false });
+    for (const s of (near ? [near] : SIDES)) sides.push({ s, near: true });
+    for (const it of sides) {
+      const s = it.s;
+      if (showLegs) {
+        /* legFrom = 'knee' — крупный план «колено — стопа» */
+        let leg = [root('hipJoint' + s, -0.055 * H, r('hipJoint') * 0.72),
+          nd('hipJoint' + s, r('hipJoint')), nd('knee' + s, r('knee')),
+          nd('ankle' + s, r('ankle'))];
+        if (o.legFrom === 'knee') leg = leg.slice(2);
+        const foot = [nd('heel' + s, r('heel')), nd('ankle' + s, r('ankle') * 0.9),
+          mid(p['ankle' + s], p['toe' + s], 0.62, r('foot')), nd('toe' + s, r('toe'))];
+        chains.push({ near: it.near, lines: [leg, foot] });
+      }
+      if (showArms) {
+        let arm = [root('shoulder' + s, 0.045 * H, r('shoulder') * 0.72),
+          nd('shoulder' + s, r('shoulder')), nd('elbow' + s, r('elbow')),
+          nd('wrist' + s, r('wrist')),
+          mid(p['wrist' + s], p['finger' + s], 0.55, r('palm')),
+          nd('finger' + s, r('finger'))];
+        if (o.armFrom === 'elbow') arm = arm.slice(2);
+        chains.push({ near: it.near, lines: [arm] });
+      }
+    }
+
+    let head = null;
+    if (o.head !== false) {
+      const R = P.headR * H;
+      const hc = p.head;
+      const neck = [mid(p.neck, hc, 0.02, r('neckLow')), mid(p.neck, hc, 0.72, r('neckUp'))];
+      /* Направление взгляда и «к макушке» — обе оси приходят из позы, а не
+         подбираются: лицо всегда согласовано с углами шеи. Когда пловец
+         смотрит от нас (лицо в воде на виде сверху), проекция взгляда
+         коротка, профиль сам съезжает в круг — и это правда: мы видим
+         затылок. */
+      const ex = p.face.x - hc.x, ey = p.face.y - hc.y;
+      const el = Math.hypot(ex, ey);
+      const kx = p.crown.x - hc.x, ky = p.crown.y - hc.y;
+      const kl = Math.hypot(kx, ky);
+      let face = null, eye = null;
+      if (el > R * 0.08) {
+        /* fu, ku — насколько оси «взгляд» и «к макушке» видны в этой
+           проекции. Профиль плавно перетекает в окружность, когда голова
+           отворачивается: чистый череп — шар, и с затылка он и должен
+           выглядеть кругом. Поэтому каждая точка профиля смешивается с
+           точкой окружности, лежащей на той же высоте. */
+        const fu = Math.min(1, el / (R * 0.98));
+        const ku = Math.min(1, kl / R);
+        const ax = ex / el, ay = ey / el;               // ось взгляда
+        let bx = -ay, by = ax;                          // ось «к макушке»
+        if (bx * kx + by * ky < 0) { bx = -bx; by = -by; }
+        const sg = (v) => (v < 0 ? -1 : 1);
+        const rt = (v) => Math.sqrt(Math.max(0, 1 - Math.min(1, v * v)));
+        const at = (fx, fy) => {
+          const e = fu * fx + (1 - fu) * sg(fx) * rt(fy);
+          const k = ku * fy + (1 - ku) * sg(fy) * rt(fx);
+          return { x: hc.x + (ax * e + bx * k) * R, y: hc.y + (ay * e + by * k) * R };
+        };
+        face = FACE.concat(SKULL).map((q) => at(q[0], q[1]));
+        /* глаз гаснет вместе с профилем: с затылка глаза не видно */
+        const vis = Math.min(1, Math.max(0, (fu - 0.18) / 0.45));
+        if (vis > 0.02) eye = { c: at(0.56, 0.26), r: Math.max(1, R * 0.10), o: vis };
+      }
+      head = { c: hc, r: R, neck, face, eye };
+    }
+    return {
+      torso: o.torso !== false ? res.torso : null,
+      chains, head,
+    };
+  }
+
+  /* Габарит нарисованного — на нём держится проверка крупности фигуры. */
+  function spanOf(parts) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    const put = (x, y, r) => {
+      x0 = Math.min(x0, x - r); x1 = Math.max(x1, x + r);
+      y0 = Math.min(y0, y - r); y1 = Math.max(y1, y + r);
+    };
+    if (parts.torso) for (const q of parts.torso) put(q.x, q.y, 0);
+    for (const ch of parts.chains) {
+      for (const line of ch.lines) for (const q of line) put(q.x, q.y, q.r);
+    }
+    if (parts.head) put(parts.head.c.x, parts.head.c.y, parts.head.r);
+    if (!isFinite(x0)) return { x0: 0, y0: 0, x1: 0, y1: 0, w: 0, h: 0 };
+    return { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0 };
+  }
+
+  /* ---------- 6.3 отрисовка ---------- */
+
+  /* Гладкий замкнутый контур по опорным точкам: через середины сторон
+     квадратичными дугами, вершина ломаной — управляющая точка. Способ выбран
+     не случайно: сплайн Катмулла — Рома на неравномерной сетке ВЫЛЕТАЕТ за
+     опорные точки, и нос на профиле головы превращался в клюв, а лоб — в
+     двойной горб. Здесь кривая не выходит за ломаную никогда. */
+  function smooth(pts) {
+    const n = pts.length;
+    if (n < 3) return '';
+    const at = (i) => pts[((i % n) + n) % n];
+    const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    const m0 = mid(at(0), at(1));
+    let d = `M ${n1(m0.x)} ${n1(m0.y)}`;
+    for (let i = 1; i <= n; i++) {
+      const c = at(i), m = mid(at(i), at(i + 1));
+      d += ` Q ${n1(c.x)} ${n1(c.y)} ${n1(m.x)} ${n1(m.y)}`;
+    }
+    return d + ' Z';
+  }
+
+  /* Звено переменной толщины: трапеция между суставами плюс кружок в самом
+     суставе. Вместе — капсула с плавным сужением. */
+  function chainShapes(lines) {
+    const out = [];
+    for (const line of lines) {
+      for (let i = 0; i < line.length - 1; i++) {
+        const a = line[i], b = line[i + 1];
+        const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+        if (d < 0.3) continue;
+        const nx = -dy / d, ny = dx / d;
+        out.push({ t: 'p', d: `M ${n1(a.x + nx * a.r)} ${n1(a.y + ny * a.r)}`
+          + ` L ${n1(b.x + nx * b.r)} ${n1(b.y + ny * b.r)}`
+          + ` L ${n1(b.x - nx * b.r)} ${n1(b.y - ny * b.r)}`
+          + ` L ${n1(a.x - nx * a.r)} ${n1(a.y - ny * a.r)} Z` });
+      }
+      for (const q of line) if (q.r > 0.3) out.push({ t: 'c', x: q.x, y: q.y, r: q.r });
+    }
+    return out;
+  }
+
+  const shapeSvg = (sh, fill, stroke, w) => {
+    const st = stroke
+      ? ` stroke="${stroke}" stroke-width="${n1(w)}" stroke-linejoin="round"` : '';
+    return sh.t === 'c'
+      ? `<circle cx="${n1(sh.x)}" cy="${n1(sh.y)}" r="${n1(sh.r)}" fill="${fill}"${st}/>`
+      : `<path d="${sh.d}" fill="${fill}"${st}/>`;
+  };
+
+  /* Группа форм рисуется дважды: сначала контуром (та же форма, раздутая
+     обводкой на толщину контура и залитая цветом контура), потом заливкой.
+     Внутренние швы пропадают сами — вторая заливка их закрывает. Поэтому
+     рука с переменной толщиной остаётся ОДНОЙ фигурой, а не набором
+     трапеций, и при этом обведена по внешнему краю. */
+  function group(shapes, fill, stroke, grow) {
+    let s = '';
+    for (const sh of shapes) s += shapeSvg(sh, stroke, stroke, grow * 2);
+    for (const sh of shapes) s += shapeSvg(sh, fill, null, 0);
+    return s;
+  }
+
+  /* Порядок отрисовки задан перекрытием: дальние конечности — под телом,
+     ближние — поверх корпуса, голова — поверх всего. Голова наверху не для
+     красоты: в виде сбоку вытянутая вперёд рука проходит ровно по лицу, и
+     если рисовать её поверх, схема перестаёт отвечать на главный вопрос —
+     куда смотрит пловец. */
+  function render(res, o) {
+    const parts = res.parts || buildParts(res, o);
+    const near = o.near === 'L' ? 'L' : o.near === 'R' ? 'R'
+      : (o.near === false ? null : 'R');
     const ink = o.color || C.ink;
     const farC = o.farColor || (near === null ? ink : C.far);
-    const lw = o.lw || Math.max(3.5, res.opts.H * 0.023);
     const fill = o.fill || C.skin;
-    const arm = (s) => ['shoulder' + s, 'elbow' + s, 'wrist' + s, 'finger' + s]
-      .slice(o.armFrom === 'elbow' ? 1 : 0);
-    /* legFrom = 'knee' — крупный план «колено — стопа» на схеме про голеностоп */
-    const leg = (s) => ['hipJoint' + s, 'knee' + s, 'ankle' + s, 'toe' + s]
-      .slice(o.legFrom === 'knee' ? 1 : 0);
-    /* какие части рисовать: крупный план «колено — стопа» — это тоже фигура
-       из модели, просто с выключенными корпусом, головой и руками */
-    const showArms = o.arms !== false;
-    const showLegs = o.legs !== false;
+    const farFill = o.farFill || (near === null ? fill : C.farSkin);
+    const g = o.edge || Math.max(0.8, res.opts.H * 0.0046);
+
     let s = '';
-    if (far) {
-      if (showLegs) s += limbSvg(res, leg(far), farC, lw * 0.9, o);
-      if (showArms) s += limbSvg(res, arm(far), farC, lw * 0.84, o);
+    for (const ch of parts.chains) {
+      if (!ch.near) s += group(chainShapes(ch.lines), farFill, farC, g);
     }
-    if (o.torso !== false) s += torsoPath(res, fill, ink, o.lwTorso || 1.4);
-    if (o.head !== false) {
-      /* шея: короткое толстое звено от плечевого пояса к голове. Без неё
-         голова «приклеена» к корпусу и поворот головы не читается. */
-      s += ln(res.pts.neck, res.pts.head, ink, lw * 1.05);
-      s += ci(res.pts.head, P.headR * res.opts.H, fill, ink, o.lwTorso || 1.4);
-      /* точка лица: направление взгляда — часть позы, а не украшение.
-         Именно по ней на схемах видно «лицо в воде» и «поворот на вдох». */
-      if (o.face !== false) s += ci(res.pts.face, Math.max(1.8, lw * 0.32), ink);
+    if (parts.torso) s += group([{ t: 'p', d: smooth(parts.torso) }], fill, ink, g);
+    for (const ch of parts.chains) {
+      if (ch.near) s += group(chainShapes(ch.lines), fill, ink, g);
     }
-    const order = near ? [near] : SIDES;
-    for (const sd of order) {
-      if (showLegs) s += limbSvg(res, leg(sd), ink, lw, o);
-      if (showArms) s += limbSvg(res, arm(sd), ink, lw * 0.92, o);
+    const h = parts.head;
+    if (h) {
+      const shapes = chainShapes([h.neck]);
+      /* Голова — либо профиль (в нём нос и подбородок выходят за череп, а
+         челюсть, наоборот, поднутряет), либо просто круг, если лица в этой
+         проекции не видно. Круг вместе с профилем рисовать нельзя: он
+         закрасил бы поднутрение, и от лица остался бы один клюв. */
+      if (h.face && o.face !== false) shapes.push({ t: 'p', d: smooth(h.face) });
+      else shapes.push({ t: 'c', x: h.c.x, y: h.c.y, r: h.r });
+      s += group(shapes, fill, ink, g);
+      if (h.eye && o.face !== false) {
+        s += `<circle cx="${n1(h.eye.c.x)}" cy="${n1(h.eye.c.y)}" r="${n1(h.eye.r)}"`
+          + ` fill="${ink}" opacity="${n1(0.2 + 0.8 * h.eye.o)}"/>`;
+      }
     }
     return s;
   }

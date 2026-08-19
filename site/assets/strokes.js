@@ -60,7 +60,7 @@
     };
   }
 
-  const CR = { x: 268, y: 136, ws: 104, H: H };
+  const CR = { x: 262, y: 148, ws: 104, H: H };
 
   /* След кисти. Считается из той же модели: точка запястья ближней руки на
      каждом шаге цикла. Раньше след был отдельным списком координат и не
@@ -73,7 +73,7 @@
       const u = i / 120;
       const r = PE.figure.solve(crawlPose(u), {
         H: o.H || CR.H, view: view || 'side', x: o.x || CR.x, y: o.y || CR.y,
-        where: 'crawl / след кисти',
+        plan: o.plan, where: o.where || 'crawl / след кисти',
       });
       const p = r.pts.wristR;
       pts.push(p);
@@ -130,17 +130,23 @@
 
   /* ---------- траектория кисти в двух системах отсчёта ---------- */
 
-  const ADV = 240;             // продвижение тела за цикл рук, ед. доски
+  const ADV = 210;             // продвижение тела за цикл рук, ед. доски
 
   PE.reg('hand-path', {
-    w: 640, h: 330, frames: 60, period: 5200,
+    w: 640, h: 368, frames: 60, period: 5200,
     phases: [
       { to: 0.56, name: 'Опорная часть: кисть «держится» за воду', note: 'В системе отсчёта тела (вверху) кисть уходит далеко назад. В системе отсчёта воды (внизу) она смещается назад совсем немного: пловец подтягивает тело к почти неподвижной кисти. Если кисть проскальзывает назад, гребок пустой.' },
       { to: 1.00, name: 'Пронос: кисть возвращается вперёд', note: 'Над водой кисть быстро идёт вперёд в обеих системах отсчёта. Именно поэтому её путь в системе отсчёта воды — вытянутая петля, а не круг.' },
     ],
     bg() {
-      const A = { H: H * 0.5, x: 300, y: 84, ws: 60 };
-      const B = { H: H * 0.5, x: 130, y: 250, ws: 226 };
+      const A = {
+        H: H * 0.62, x: 296, y: 98, ws: 74,
+        plan: 'wide', where: 'hand-path / след кисти',
+      };
+      const B = {
+        H: H * 0.62, x: 150, y: 266, ws: 262,
+        plan: 'wide', where: 'hand-path / след кисти',
+      };
       const a = traceCrawl('side', A);
       let rel = '', abs = '';
       for (let i = 0; i < a.pts.length; i++) {
@@ -151,10 +157,10 @@
         const dx = ADV * (i / (b.pts.length - 1));
         abs += `${i === 0 ? 'M' : 'L'} ${M.num(b.pts[i].x + dx)} ${M.num(b.pts[i].y)}`;
       }
-      return '<rect x="0" y="0" width="640" height="164" fill="rgba(21,94,117,.035)"/>'
-        + line(0, 164, 640, 164, C.gray, 1)
+      return '<rect x="0" y="0" width="640" height="178" fill="rgba(21,94,117,.035)"/>'
+        + line(0, 178, 640, 178, C.gray, 1)
         + text(10, 20, 'Система отсчёта тела: тело неподвижно, кисть уходит назад', C.ink)
-        + text(10, 190, 'Система отсчёта воды: кисть почти на месте, вперёд едет тело', C.ink)
+        + text(10, 212, 'Система отсчёта воды: кисть почти на месте, вперёд едет тело', C.ink)
         + path(rel, C.water, 1.4, 'none', ' stroke-dasharray="5 4"')
         + path(abs, C.green, 1.6, 'none', ' stroke-dasharray="5 4"');
     },
@@ -162,21 +168,31 @@
       const pose = crawlPose(u, { roll: false });
       let s = '';
       /* верхняя панель: тело на месте */
+      /* Общий план: на доске два поля отсчёта, и в нижнем тело ЕДЕТ вправо на
+         целое продвижение за цикл. Крупная фигура вместе с этим ходом на
+         640 единиц не встаёт — масштаб объявлен как plan: 'wide'. Масштаб у
+         полей общий: иначе их нельзя сравнивать глазом. */
       s += fig(pose, {
-        H: H * 0.5, x: 300, y: 84, near: 'R', where: 'hand-path / система тела',
+        H: H * 0.62, x: 296, y: 98, near: 'R', plan: 'wide',
+        where: 'hand-path / система тела',
       });
-      const a = PE.figure.solve(pose, { H: H * 0.5, x: 300, y: 84 }).pts.wristR;
+      const a = PE.figure.solve(pose, {
+        H: H * 0.62, x: 296, y: 98, plan: 'wide', where: 'hand-path / кисть',
+      }).pts.wristR;
       s += circle(a.x, a.y, 4, C.water);
       s += text(a.x + 10, a.y + 16, 'кисть', C.water);
       /* нижняя панель: тело едет вправо */
       const dx = ADV * u;
       s += fig(pose, {
-        H: H * 0.5, x: 130 + dx, y: 250, near: 'R', where: 'hand-path / система воды',
+        H: H * 0.62, x: 150 + dx, y: 266, near: 'R', plan: 'wide',
+        where: 'hand-path / система воды',
       });
-      const b = PE.figure.solve(pose, { H: H * 0.5, x: 130 + dx, y: 250 }).pts.wristR;
+      const b = PE.figure.solve(pose, {
+        H: H * 0.62, x: 150 + dx, y: 266, plan: 'wide', where: 'hand-path / кисть',
+      }).pts.wristR;
       s += circle(b.x, b.y, 4, C.green);
-      s += line(130 + dx, 312, 190 + dx, 312, C.green, 2, ' marker-end="url(#arrG)"');
-      s += text(130 + dx - 20, 326, 'тело движется вперёд', C.green);
+      s += line(150 + dx, 350, 210 + dx, 350, C.green, 2, ' marker-end="url(#arrG)"');
+      s += text(150 + dx - 20, 364, 'тело движется вперёд', C.green);
       return s;
     },
     caption: 'Одно и то же движение кисти в двух системах отсчёта. Вверху тело условно стоит, внизу — движется. Опорная часть гребка тем лучше, чем меньше кисть смещается назад относительно воды.',
@@ -185,7 +201,7 @@
   /* ---------- кроль на груди, вид сверху ---------- */
 
   PE.reg('crawl-top', {
-    w: 640, h: 260, frames: 60, period: 4200,
+    w: 640, h: 300, frames: 60, period: 4200,
     phases: [
       { to: 0.36, name: 'Правая гребёт, левая проносится', note: 'Сверху хорошо видно главное: руки работают попеременно и почти всегда одна из них опирается о воду. Кисть гребущей руки идёт не строго назад, а сначала немного внутрь, под тело.' },
       { to: 0.50, name: 'Крен корпуса', note: 'Тело проворачивается вокруг продольной оси на 30–45° в сторону гребущей руки. Крен — не украшение: он удлиняет гребок и подставляет под воду более сильные мышцы спины.' },
@@ -193,11 +209,11 @@
       { to: 1.00, name: 'Лицо в воду, выдох', note: 'Голова возвращается раньше, чем рука войдёт в воду. Дальше — непрерывный выдох до следующего вдоха.' },
     ],
     bg() {
-      return '<rect x="0" y="0" width="640" height="260" fill="rgba(21,94,117,.04)"/>'
-        + line(0, 130, 640, 130, C.gray, 0.9, ' stroke-dasharray="6 6"')
-        + text(8, 124, 'ось движения', C.gray)
-        + S.moveArrow(516, 26, 'движение')
-        + text(8, 250, 'вид сверху — та же поза, что на схеме сбоку; тёмным — правая рука, светлым — левая', C.gray);
+      return '<rect x="0" y="0" width="640" height="300" fill="rgba(21,94,117,.04)"/>'
+        + line(0, 158, 640, 158, C.gray, 0.9, ' stroke-dasharray="6 6"')
+        + text(528, 152, 'ось движения', C.gray)
+        + S.moveArrow(516, 22, 'движение')
+        + text(8, 292, 'вид сверху — та же поза, что на схеме сбоку; тёмным — правая рука, светлым — левая', C.gray);
     },
     draw(u) {
       /* голова доворачивается к правому плечу в конце гребка правой руки */
@@ -208,9 +224,11 @@
       const inhale = u >= 0.56 && u < 0.72;
       const pose = crawlPose(u, { headTurn: turn });
       let s = PE.figure(pose, {
-        H: H * 0.92, view: 'top', x: 262, y: 130, near: 'R', where: 'crawl-top',
+        H, view: 'top', x: 258, y: 158, near: 'R', where: 'crawl-top',
       });
-      const r = PE.figure.solve(pose, { H: H * 0.92, view: 'top', x: 262, y: 130 });
+      const r = PE.figure.solve(pose, {
+        H, view: 'top', x: 258, y: 158, where: 'crawl-top / точка лица',
+      });
       if (inhale) {
         s += line(r.pts.face.x + 52, r.pts.face.y + 44, r.pts.face.x + 12,
           r.pts.face.y + 10, C.green, 2, ' marker-end="url(#arrG)"');
@@ -221,10 +239,10 @@
           s += circle(r.pts.face.x + 12 + t * 26, r.pts.face.y + i * 2 - 4,
             1.5 + (i % 2), 'rgba(21,94,117,.4)');
         }
-        s += text(430, 224, 'выдох в воду', C.water);
+        s += text(430, 272, 'выдох в воду', C.water);
       }
       const roll = pose.roll;
-      s += text(20, 40, 'крен корпуса: ' + Math.round(Math.abs(roll)) + '°'
+      s += text(20, 24, 'крен корпуса: ' + Math.round(Math.abs(roll)) + '°'
         + (roll > 6 ? ' вправо' : roll < -6 ? ' влево' : ''), C.water);
       return s;
     },
@@ -270,7 +288,7 @@
       { to: 1.00, name: 'Пронос', note: 'Прямая рука проносится над телом через вертикаль. В верхней точке ладонь разворачивается наружу, чтобы войти в воду мизинцем.' },
     ],
     bg() {
-      return S.water(640, 300, 120)
+      return S.water(640, 300, 120, { labelX: 528 })
         + S.moveArrow(516, 40, 'движение')
         + text(8, 292, 'лицо всё время над водой; уши в воде, взгляд вверх — на потолок или на флажки', C.gray);
     },
@@ -379,7 +397,7 @@
   });
 
   PE.reg('breast-top', {
-    w: 640, h: 280, frames: 60, period: 5000,
+    w: 640, h: 330, frames: 60, period: 5000,
     phases: [
       { to: 0.14, name: 'Вытянуты вперёд', note: 'Кисти вместе, ладони вниз, руки на ширине плеч или уже. Тело максимально узкое.' },
       { to: 0.38, name: 'Разведение и гребок', note: 'Кисти расходятся наружу чуть шире плеч и разворачиваются ладонями назад-наружу. Сверху путь кистей похож на верхнюю половину сердца.' },
@@ -388,7 +406,7 @@
     ],
     bg() {
       /* след кистей — «сердечко»; считается из той же позы */
-      const o = { H: H * 0.94, view: 'top', x: 272, y: 140 };
+      const o = { H, view: 'top', x: 266, y: 166 };
       let dR = '', dL = '';
       for (let i = 0; i <= 100; i++) {
         const r = PE.figure.solve(breastPose(i / 100),
@@ -396,16 +414,16 @@
         dR += `${i === 0 ? 'M' : 'L'} ${M.num(r.pts.wristR.x)} ${M.num(r.pts.wristR.y)}`;
         dL += `${i === 0 ? 'M' : 'L'} ${M.num(r.pts.wristL.x)} ${M.num(r.pts.wristL.y)}`;
       }
-      return '<rect x="0" y="0" width="640" height="280" fill="rgba(21,94,117,.04)"/>'
-        + line(0, 140, 640, 140, C.gray, 0.9, ' stroke-dasharray="6 6"')
+      return '<rect x="0" y="0" width="640" height="330" fill="rgba(21,94,117,.04)"/>'
+        + line(0, 166, 640, 166, C.gray, 0.9, ' stroke-dasharray="6 6"')
         + path(dR, C.water, 1.3, 'none', ' stroke-dasharray="5 4"')
         + path(dL, C.water, 1.3, 'none', ' stroke-dasharray="5 4"')
-        + text(180, 40, 'след кистей: «сердечко»', C.water)
-        + S.moveArrow(516, 26, 'движение');
+        + text(180, 24, 'след кистей: «сердечко»', C.water)
+        + S.moveArrow(516, 316, 'движение');
     },
     draw(u) {
       return PE.figure(breastPose(u), {
-        H: H * 0.94, view: 'top', x: 272, y: 140, near: false, where: 'breast-top',
+        H, view: 'top', x: 266, y: 166, near: false, where: 'breast-top',
       });
     },
     caption: 'Брасс сверху. Пунктир — путь кистей, посчитанный из той же позы, что и руки: они расходятся наружу, сводятся под грудью и выстреливают вперёд. Руки не заходят за линию плеч.',
@@ -427,21 +445,21 @@
   }
 
   const TURN_KEYS = [
-    { u: 0.00, x: 250, y: 168, tilt: 0, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 6, ankle: 44 },
-    { u: 0.20, x: 396, y: 168, tilt: 0, headTilt: 4, shoulder: 176, shoulderPlane: 14, elbow: 10, hip: 4, knee: 12, ankle: 40 },
-    { u: 0.32, x: 424, y: 182, tilt: -40, headTilt: 30, shoulder: 86, shoulderPlane: 50, elbow: 76, hip: 96, knee: 118, ankle: 10 },
-    { u: 0.46, x: 442, y: 194, tilt: -118, headTilt: 34, shoulder: 60, shoulderPlane: 70, elbow: 96, hip: 110, knee: 130, ankle: 0 },
-    { u: 0.60, x: 446, y: 186, tilt: -176, headTilt: 20, shoulder: 120, shoulderPlane: 40, elbow: 54, hip: 88, knee: 112, ankle: 4 },
+    { u: 0.00, x: 250, y: 152, tilt: 0, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 6, ankle: 44 },
+    { u: 0.20, x: 396, y: 152, tilt: 0, headTilt: 4, shoulder: 176, shoulderPlane: 14, elbow: 10, hip: 4, knee: 12, ankle: 40 },
+    { u: 0.32, x: 424, y: 168, tilt: -40, headTilt: 30, shoulder: 86, shoulderPlane: 50, elbow: 76, hip: 96, knee: 118, ankle: 10 },
+    { u: 0.46, x: 442, y: 182, tilt: -118, headTilt: 34, shoulder: 60, shoulderPlane: 70, elbow: 96, hip: 110, knee: 130, ankle: 0 },
+    { u: 0.60, x: 446, y: 178, tilt: -176, headTilt: 20, shoulder: 120, shoulderPlane: 40, elbow: 54, hip: 88, knee: 112, ankle: 4 },
     /* отталкивание: ноги разгибаются быстро и целиком — это и есть толчок,
        а не медленное распрямление, при котором тело идёт «уголком» */
-    { u: 0.68, x: 434, y: 182, tilt: -179, headTilt: 12, shoulder: 154, shoulderPlane: 20, elbow: 30, hip: 62, knee: 84, ankle: 8 },
-    { u: 0.73, x: 418, y: 178, tilt: -180, headTilt: 8, shoulder: 172, shoulderPlane: 16, elbow: 12, hip: 6, knee: 12, ankle: 34 },
-    { u: 0.86, x: 346, y: 174, tilt: -180, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 2, knee: 8, ankle: 44 },
-    { u: 0.96, x: 234, y: 170, tilt: -180, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 6, ankle: 44 },
+    { u: 0.68, x: 434, y: 174, tilt: -179, headTilt: 12, shoulder: 154, shoulderPlane: 20, elbow: 30, hip: 62, knee: 84, ankle: 8 },
+    { u: 0.73, x: 418, y: 168, tilt: -180, headTilt: 8, shoulder: 172, shoulderPlane: 16, elbow: 12, hip: 6, knee: 12, ankle: 34 },
+    { u: 0.86, x: 346, y: 160, tilt: -180, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 2, knee: 8, ankle: 44 },
+    { u: 0.96, x: 234, y: 154, tilt: -180, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 6, ankle: 44 },
   ];
 
   PE.reg('turn-open', {
-    w: 640, h: 300, frames: 60, period: 6000,
+    w: 640, h: 350, frames: 60, period: 6000,
     phases: [
       { to: 0.20, name: 'Подплывание и касание', note: 'К стенке подходят на ходу, не сбавляя скорости, и касаются её рукой на уровне поверхности. Взгляд — на стенку, чтобы не промахнуться и не удариться.' },
       { to: 0.42, name: 'Группировка и разворот', note: 'Ноги подтягиваются под себя, тело сворачивается и разворачивается. Рука отталкивается от стенки и уходит назад, за голову.' },
@@ -450,22 +468,25 @@
       { to: 1.00, name: 'Скольжение и первый гребок', note: 'Скольжение в вытянутом положении, затем работа ногами и первый гребок. Всплывать нужно до того, как скорость упадёт ниже скорости плавания.' },
     ],
     bg() {
-      let s = S.water(640, 300, 62);
-      s += `<rect x="586" y="62" width="54" height="238" fill="rgba(21,94,117,.14)" stroke="${C.water}" stroke-width="1.6"/>`;
-      s += text(494, 54, 'стенка бассейна', C.water);
+      let s = S.water(640, 350, 62);
+      s += `<rect x="586" y="62" width="54" height="288" fill="rgba(21,94,117,.14)" stroke="${C.water}" stroke-width="1.6"/>`;
+      s += text(468, 54, 'стенка бассейна', C.water);
       s += line(586, 128, 640, 128, C.water, 1.2, ' stroke-dasharray="4 4"');
-      s += text(8, 292, 'глубина постановки стоп 30–40 см; толчок направлен вдоль дорожки', C.gray);
+      s += text(8, 342, 'глубина постановки стоп 30–40 см; толчок направлен вдоль дорожки', C.gray);
       return s;
     },
     draw(u) {
       const p = poseAt(TURN_KEYS, u);
-      let s = S.drift(u, 62, 8, 100, 280, 0.5);
+      let s = S.drift(u, 62, 8, 100, 326, 0.5);
+      /* Общий план: на доске показан ПУТЬ пловца от стенки и обратно —
+         фигура едет по ней от края до края (см. plan в figure.js). */
       s += fig(p.pose, {
-        x: p.x, y: p.y, waterline: 62, near: 'R', where: 'turn-open', H: H * 0.86,
+        x: p.x, y: p.y, waterline: 62, near: 'R', where: 'turn-open',
+        H: H * 0.78, plan: 'wide',
       });
       if (u >= 0.62 && u < 0.80) {
-        s += line(540, 244, 470, 240, C.green, 2.4, ' marker-end="url(#arrG)"');
-        s += text(414, 264, 'толчок', C.green);
+        s += line(536, 210, 470, 206, C.green, 2.4, ' marker-end="url(#arrG)"');
+        s += text(414, 228, 'толчок', C.green);
       }
       if (u < 0.20) {
         s += line(320, 88, 380, 88, C.water, 2, ' marker-end="url(#arrW)"');
@@ -481,18 +502,18 @@
   });
 
   const DIVE_KEYS = [
-    { u: 0.00, x: 116, y: 78, tilt: 44, headTilt: 26, shoulder: 26, shoulderPlane: 22, elbow: 24, hip: 74, knee: 94, ankle: -8 },
-    { u: 0.22, x: 118, y: 80, tilt: 38, headTilt: 28, shoulder: 22, shoulderPlane: 20, elbow: 28, hip: 82, knee: 102, ankle: -12 },
-    { u: 0.34, x: 158, y: 80, tilt: 16, headTilt: 12, shoulder: 140, shoulderPlane: 16, elbow: 16, hip: 16, knee: 34, ankle: 24 },
-    { u: 0.48, x: 218, y: 80, tilt: 8, headTilt: 8, shoulder: 174, shoulderPlane: 14, elbow: 6, hip: 2, knee: 6, ankle: 46 },
-    { u: 0.62, x: 276, y: 110, tilt: -26, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 5, hip: 0, knee: 4, ankle: 48 },
-    { u: 0.74, x: 330, y: 154, tilt: -34, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 5, hip: 0, knee: 4, ankle: 48 },
-    { u: 0.84, x: 390, y: 196, tilt: -12, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 6, ankle: 46 },
-    { u: 0.94, x: 456, y: 204, tilt: -2, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 8, ankle: 44 },
+    { u: 0.00, x: 136, y: 100, tilt: 44, headTilt: 26, shoulder: 26, shoulderPlane: 22, elbow: 24, hip: 74, knee: 94, ankle: -8 },
+    { u: 0.22, x: 138, y: 102, tilt: 38, headTilt: 28, shoulder: 22, shoulderPlane: 20, elbow: 28, hip: 82, knee: 102, ankle: -12 },
+    { u: 0.34, x: 168, y: 102, tilt: 16, headTilt: 12, shoulder: 140, shoulderPlane: 16, elbow: 16, hip: 16, knee: 34, ankle: 24 },
+    { u: 0.48, x: 214, y: 102, tilt: 8, headTilt: 8, shoulder: 174, shoulderPlane: 14, elbow: 6, hip: 2, knee: 6, ankle: 46 },
+    { u: 0.62, x: 240, y: 132, tilt: -26, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 5, hip: 0, knee: 4, ankle: 48 },
+    { u: 0.74, x: 288, y: 178, tilt: -34, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 5, hip: 0, knee: 4, ankle: 48 },
+    { u: 0.84, x: 340, y: 222, tilt: -12, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 6, ankle: 46 },
+    { u: 0.94, x: 396, y: 230, tilt: -2, headTilt: 8, shoulder: 176, shoulderPlane: 14, elbow: 6, hip: 0, knee: 8, ankle: 44 },
   ];
 
   PE.reg('start-dive', {
-    w: 640, h: 320, frames: 60, period: 6000,
+    w: 640, h: 360, frames: 60, period: 6000,
     phases: [
       { to: 0.22, name: 'Исходное положение', note: 'Стопы у края бортика, пальцы захватывают край, колени согнуты, корпус наклонён, взгляд вниз-вперёд. Руки внизу или на бортике.' },
       { to: 0.38, name: 'Отталкивание', note: 'Ноги разгибаются, тело вытягивается вперёд-вверх, руки выносятся вперёд и соединяются над головой. Голова между руками.' },
@@ -501,30 +522,33 @@
       { to: 1.00, name: 'Скольжение и выход', note: 'Скольжение под водой в вытянутом положении, затем работа ногами и первый гребок. Всплывать нужно плавно, не задирая голову.' },
     ],
     bg() {
-      let s = S.water(640, 320, 150);
-      s += '<rect x="0" y="150" width="150" height="170" fill="rgba(21,94,117,.14)"'
+      let s = S.water(640, 360, 174);
+      s += '<rect x="0" y="174" width="150" height="186" fill="rgba(21,94,117,.14)"'
         + ` stroke="${C.water}" stroke-width="1.6"/>`;
-      s += `<rect x="0" y="126" width="164" height="24" fill="#dfe7ec" stroke="${C.ink}" stroke-width="1.4"/>`;
-      s += text(8, 120, 'бортик', C.ink);
-      s += line(268, 152, 268, 296, C.gray, 0.9, ' stroke-dasharray="4 6"');
-      s += text(272, 296, 'вход в воду «в одну точку»', C.gray);
-      s += text(8, 314, 'угол входа около 30–40°; голова между руками, кисти сложены', C.gray);
+      s += `<rect x="0" y="150" width="164" height="24" fill="#dfe7ec" stroke="${C.ink}" stroke-width="1.4"/>`;
+      s += text(104, 168, 'бортик', C.ink);
+      s += line(232, 176, 232, 340, C.gray, 0.9, ' stroke-dasharray="4 6"');
+      s += text(236, 340, 'вход в воду «в одну точку»', C.gray);
+      s += text(8, 354, 'угол входа около 30–40°; голова между руками, кисти сложены', C.gray);
       return s;
     },
     draw(u) {
       const p = poseAt(DIVE_KEYS, u);
       let s = '';
-      if (u >= 0.74) s += S.drift(u, 150, 8, 246, 300, 0.6);
+      if (u >= 0.74) s += S.drift(u, 174, 8, 280, 344, 0.6);
+      /* Общий план: тумбочка, полёт и вход в воду — это путь через всю
+         доску, фигура на ней перемещается (см. plan в figure.js). */
       s += fig(p.pose, {
-        x: p.x, y: p.y, waterline: 150, near: 'R', where: 'start-dive', H: H * 0.82,
+        x: p.x, y: p.y, waterline: 174, near: 'R', where: 'start-dive',
+        H: H * 0.82, plan: 'wide',
       });
       if (u >= 0.22 && u < 0.38) {
-        s += line(180, 250, 240, 226, C.green, 2.4, ' marker-end="url(#arrG)"');
-        s += text(180, 270, 'толчок вперёд, а не вверх', C.green);
+        s += line(180, 300, 240, 276, C.green, 2.4, ' marker-end="url(#arrG)"');
+        s += text(180, 320, 'толчок вперёд, а не вверх', C.green);
       }
       if (u >= 0.58 && u < 0.80) {
-        s += line(420, 120, 366, 158, C.red, 2, ' marker-end="url(#arrR)"');
-        s += text(426, 116, 'кисти входят первыми', C.red);
+        s += line(444, 142, 390, 180, C.red, 2, ' marker-end="url(#arrR)"');
+        s += text(450, 138, 'кисти входят первыми', C.red);
       }
       return s;
     },
