@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Расчёты и оценки — Физическая культура и спорт</title>
+<meta name="description" content="Живые расчёты по курсу: индекс массы тела и весоростовые индексы Кетле и Брока — Бругша, пульсовые зоны и формула Карвонена, темп и время на дистанции, оценка нагрузки по объективным показателям и антропометрические индексы из лекций СПбГМТУ.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<script src="assets/shell.js"></script>
+<script src="assets/site.js" data-root="./" data-page="calc"></script>
+<main class="wrap">
+  <h1>Расчёты и оценки</h1>
+  <p class="lead">Пять калькуляторов к теоретическому курсу. Каждый пересчитывает
+  результат сразу при изменении любого поля и показывает не только число, но и
+  всю цепочку: формула, подстановка, результат — так же, как это делается на
+  бумаге. Числовые границы и словесные оценки взяты из лекций кафедры
+  физического воспитания СПбГМТУ; там, где показатель в лекциях не встречается,
+  это отмечено отдельно.</p>
+
+  <div class="note med">Все расчёты на этой странице ориентировочные. Индекс
+  оценивает не здоровье, а соответствие измеренных величин средним значениям для
+  группы людей того же пола и роста; отклонение от среднего само по себе не
+  является ни диагнозом, ни поводом менять нагрузку. При жалобах, хронических
+  заболеваниях и любых отклонениях в самочувствии режим занятий определяют врач
+  и преподаватель кафедры физического воспитания, а не расчёт на сайте.</div>
+
+  <div class="short"><b>Коротко.</b>
+    <ul>
+      <li>Индексы физического развития — это соотношения двух-трёх измеренных
+      признаков; они дают ориентировочную, а не точную оценку.</li>
+      <li>Максимальная ЧСС оценивается по формуле 220 − возраст; градация
+      нагрузки по пульсу и границы аэробной и смешанной зон — из лекции № 7.</li>
+      <li>Одна и та же нагрузка оценивается сразу по нескольким объективным
+      показателям: пульс, время восстановления, частота дыхания, потеря массы.</li>
+      <li>Расчёт стоит доверять только при аккуратном измерении: рост меряют в
+      первой половине дня, массу — натощак, обхваты — сантиметровой лентой.</li>
+    </ul>
+  </div>
+
+  <section id="s-bmi">
+    <h2>1. Масса тела и рост</h2>
+    <p>Соотношение массы и роста оценивают несколькими индексами сразу, потому
+    что каждый из них огрубляет по-своему. Международный индекс массы тела
+    (ИМТ) относит массу к квадрату роста; в лекциях кафедры его нет, там
+    приведены весоростовой индекс Кетле и ростовой индекс Брока — Бругша
+    (<a href="t3">глава 3</a>, раздел 3.5.1). Все три считаются ниже по одним и
+    тем же двум измерениям.</p>
+
+    <div class="controls">
+      <label>масса <i>m</i>, кг
+        <input type="number" id="m1" value="72" min="30" max="250" step="0.1"></label>
+      <label>рост <i>L</i>, см
+        <input type="number" id="h1" value="180" min="120" max="230" step="0.5"></label>
+      <label>пол
+        <select id="sex1">
+          <option value="m" selected>мужской</option>
+          <option value="f">женский</option>
+        </select></label>
+    </div>
+
+    <div class="calc-out">
+      <div>\(\text{ИМТ} = m/h^2\) = <span class="sub" id="bmiSub">—</span> = <b id="bmiRes">—</b></div>
+      <div id="bmiCat" class="small">—</div>
+      <div>\(\text{И}_{\text{Кетле}} = m_{\text{г}}/L_{\text{см}}\) = <span class="sub" id="ketSub">—</span> = <b id="ketRes">—</b></div>
+      <div id="ketCat" class="small">—</div>
+      <div>\(m_{\text{долж}} = L - k\) = <span class="sub" id="brSub">—</span> = <b id="brRes">—</b></div>
+      <div id="brCat" class="small">—</div>
+    </div>
+
+    <p class="small">Категории ИМТ приведены по шкале Всемирной организации
+    здравоохранения: менее 18,5 — дефицит массы тела; 18,5–24,9 — норма;
+    25,0–29,9 — избыточная масса тела; 30,0 и более — ожирение. ИМТ не
+    различает мышечную и жировую массу: у человека с развитой мускулатурой он
+    закономерно выше, и «избыточная масса» по расчёту у него означает лишь
+    большую массу на единицу роста. ИМТ не является диагнозом.</p>
+
+    <p class="small">Средние значения индекса Кетле по лекции № 3 — 350–400 г/см
+    у мужчин и 325–375 г/см у женщин. Ростовой индекс Брока — Бругша даёт
+    должную массу: из роста вычитают 100 при росте до 165 см, 105 при росте
+    165–175 см и 110 при росте 175 см и выше. Оба индекса не учитывают тип
+    телосложения, поэтому лекция прямо оговаривает, что для более точной оценки
+    нужен учёт типа телосложения.</p>
+  </section>
+
+  <section id="s-pulse">
+    <h2>2. Пульсовые зоны</h2>
+    <p>Пульс — самый доступный показатель интенсивности нагрузки. В лекции № 7
+    (раздел 7.3.3) максимальная ЧСС оценивается формулой 220 − возраст, а
+    величина нагрузки описывается градацией: лёгкая — до 130 уд/мин, средней
+    тяжести — 130–150, выше средней — 150–170, предельная — свыше 170 уд/мин.
+    Отдельно (раздел 7.3.1) выделены зоны энергообеспечения: аэробная при
+    131–150 уд/мин и смешанная при 151–180 уд/мин. Подробнее — в
+    <a href="t7">главе 7</a>.</p>
+
+    <div class="controls">
+      <label>возраст, лет
+        <input type="number" id="age" value="20" min="14" max="90" step="1"></label>
+      <label>ЧСС покоя, уд/мин
+        <input type="number" id="hrRest" value="60" min="30" max="120" step="1"></label>
+      <label>доля резерва, %
+        <input type="number" id="hrPct" value="70" min="30" max="95" step="1"></label>
+    </div>
+
+    <div class="calc-out">
+      <div>\(\text{ЧСС}_{\max} = 220 - \text{возраст}\) = <span class="sub" id="hmSub">—</span> = <b id="hmRes">—</b></div>
+      <div>\(\text{ЧСС}_{\text{рез}} = \text{ЧСС}_{\max} - \text{ЧСС}_{\text{покоя}}\) = <span class="sub" id="hrsSub">—</span> = <b id="hrsRes">—</b></div>
+      <div>\(\text{ЧСС}_{\text{цел}} = \text{ЧСС}_{\text{покоя}} + d\cdot\text{ЧСС}_{\text{рез}}\) = <span class="sub" id="htSub">—</span> = <b id="htRes">—</b></div>
+      <div id="hZone" class="small">—</div>
+      <div id="hGrad" class="small">—</div>
+    </div>
+
+    <div class="panel">
+      <svg viewBox="0 0 640 205" class="geo-board" style="max-width:640px">
+        <text x="60" y="28" style="font:11px system-ui;fill:#6b6b74">градация нагрузки по пульсу (лекция № 7, 7.3.3)</text>
+        <rect x="60" y="34" width="162" height="28" fill="#1a7f37" opacity=".12"/>
+        <rect x="222" y="34" width="108" height="28" fill="#155e75" opacity=".12"/>
+        <rect x="330" y="34" width="108" height="28" fill="#b3382e" opacity=".10"/>
+        <rect x="438" y="34" width="162" height="28" fill="#b3382e" opacity=".22"/>
+        <g style="font:11px system-ui;fill:#16161a" text-anchor="middle">
+          <text x="141" y="52">лёгкая, до 130</text>
+          <text x="276" y="52">средняя</text>
+          <text x="384" y="52">выше средней</text>
+          <text x="519" y="52">предельная</text>
+        </g>
+        <text x="68" y="80" style="font:11px system-ui;fill:#6b6b74">зоны энергообеспечения (7.3.1)</text>
+        <rect x="227.4" y="86" width="102.6" height="28" fill="#155e75" opacity=".18"/>
+        <rect x="335.4" y="86" width="156.6" height="28" fill="#b3382e" opacity=".14"/>
+        <g style="font:11px system-ui;fill:#16161a" text-anchor="middle">
+          <text x="278" y="104">аэробная</text>
+          <text x="414" y="104">смешанная</text>
+        </g>
+        <rect id="pOver" x="600" y="34" width="0" height="80" fill="#6b6b74" opacity=".18"/>
+        <line id="pMaxLn" x1="600" y1="34" x2="600" y2="140" stroke="#6b6b74" stroke-width="1.2" stroke-dasharray="5 4"/>
+        <line x1="60" y1="140" x2="612" y2="140" stroke="#16161a" stroke-width="1.6"/>
+        <g stroke="#16161a" stroke-width="1">
+          <line x1="60" y1="140" x2="60" y2="146"/><line x1="114" y1="140" x2="114" y2="146"/>
+          <line x1="168" y1="140" x2="168" y2="146"/><line x1="222" y1="140" x2="222" y2="146"/>
+          <line x1="276" y1="140" x2="276" y2="146"/><line x1="330" y1="140" x2="330" y2="146"/>
+          <line x1="384" y1="140" x2="384" y2="146"/><line x1="438" y1="140" x2="438" y2="146"/>
+          <line x1="492" y1="140" x2="492" y2="146"/><line x1="546" y1="140" x2="546" y2="146"/>
+          <line x1="600" y1="140" x2="600" y2="146"/>
+        </g>
+        <g style="font:11px system-ui;fill:#6b6b74" text-anchor="middle">
+          <text x="60" y="158">100</text><text x="114" y="158">110</text><text x="168" y="158">120</text>
+          <text x="222" y="158">130</text><text x="276" y="158">140</text><text x="330" y="158">150</text>
+          <text x="384" y="158">160</text><text x="438" y="158">170</text><text x="492" y="158">180</text>
+          <text x="546" y="158">190</text><text x="600" y="158">200</text>
+        </g>
+        <text x="612" y="28" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">ЧСС, уд/мин</text>
+        <line id="pMark" x1="374" y1="34" x2="374" y2="62" stroke="#b3382e" stroke-width="2"/>
+        <line id="pMark2" x1="374" y1="86" x2="374" y2="140" stroke="#b3382e" stroke-width="2"/>
+        <circle id="pDot" cx="374" cy="140" r="4" fill="#b3382e"/>
+        <text id="pLbl1" x="374" y="176" text-anchor="middle" style="font:600 11px system-ui;fill:#b3382e">целевая ЧСС —</text>
+        <text id="pLbl2" x="374" y="192" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">— % резерва</text>
+      </svg>
+      <div class="caption">Шкала ЧСС от 100 до 200 уд/мин. Верхняя полоса —
+      градация величины нагрузки по пульсу из раздела 7.3.3, нижняя — зоны
+      энергообеспечения из раздела 7.3.1 (аэробная 131–150 и смешанная
+      151–180 уд/мин). Красная метка — целевая ЧСС, посчитанная по Карвонену для
+      заданной доли резерва; серая штриховая линия и серая заливка справа от
+      неё — область выше расчётной максимальной ЧСС, которая для заданного
+      возраста недостижима.</div>
+    </div>
+
+    <h3>Границы по долям резерва</h3>
+    <table class="el">
+      <tr><th>Доля резерва <i>d</i></th><th>ЧСС<sub>цел</sub>, уд/мин</th><th>Зона по лекции № 7</th></tr>
+      <tr><td>50 %</td><td class="num" id="k50">—</td><td id="k50z">—</td></tr>
+      <tr><td>60 %</td><td class="num" id="k60">—</td><td id="k60z">—</td></tr>
+      <tr><td>70 %</td><td class="num" id="k70">—</td><td id="k70z">—</td></tr>
+      <tr><td>80 %</td><td class="num" id="k80">—</td><td id="k80z">—</td></tr>
+      <tr><td>90 %</td><td class="num" id="k90">—</td><td id="k90z">—</td></tr>
+    </table>
+
+    <div class="note tip"><b>Откуда что взято.</b> Формула
+    ЧСС<sub>макс</sub> = 220 − возраст и обе градации — из лекции № 7. Формулы
+    Карвонена (через резерв пульса) в лекциях кафедры физического воспитания
+    СПбГМТУ нет: это внешний, широко распространённый способ расчёта, приведён
+    здесь для сравнения. Обе оценки приблизительны: формула 220 − возраст даёт
+    среднюю по группе величину, индивидуальный разброс достигает нескольких
+    десятков ударов в минуту.</div>
+  </section>
+
+  <section id="s-pace">
+    <h2>3. Темп и время на дистанции</h2>
+    <p>В таблице 1.1 лекции № 1 зачётные тесты заданы временем на дистанции
+    (бег 100 м, 2000 и 3000 м), а в таблице 1.2 в контрольные упражнения входит
+    плавание 100 м без учёта времени. Чтобы планировать отрезки на тренировке,
+    время удобно перевести в скорость и темп: темп на 100 м привычен в
+    бассейне, темп на 1 км — в беге. См. <a href="t1">главу 1</a> и
+    <a href="swim">раздел плавания</a>.</p>
+
+    <h3>Из времени — скорость и темп</h3>
+    <div class="controls">
+      <label>дистанция <i>S</i>, м
+        <input type="number" id="pS" value="100" min="25" max="42195" step="25"></label>
+      <label>время, мин
+        <input type="number" id="pMin" value="2" min="0" max="600" step="1"></label>
+      <label>с
+        <input type="number" id="pSec" value="5" min="0" max="59.9" step="1"></label>
+    </div>
+    <div class="calc-out">
+      <div>\(t = 60\,\text{мин} + \text{с}\) = <span class="sub" id="tSub">—</span> = <b id="tRes">—</b></div>
+      <div>\(v = S/t\) = <span class="sub" id="vSub">—</span> = <b id="vRes">—</b></div>
+      <div>\(T_{100} = 100/v\) = <span class="sub" id="p100Sub">—</span> = <b id="p100Res">—</b></div>
+      <div>\(T_{1000} = 1000/v\) = <span class="sub" id="p1kSub">—</span> = <b id="p1kRes">—</b></div>
+    </div>
+
+    <h3>Из темпа — время на дистанции</h3>
+    <div class="controls">
+      <label>дистанция <i>S</i>, м
+        <input type="number" id="qS" value="3000" min="25" max="42195" step="100"></label>
+      <label>темп на 1 км, мин
+        <input type="number" id="qMin" value="4" min="1" max="30" step="1"></label>
+      <label>с
+        <input type="number" id="qSec" value="23" min="0" max="59.9" step="1"></label>
+    </div>
+    <div class="calc-out">
+      <div>\(t = (S/1000)\cdot T_{1000}\) = <span class="sub" id="qSub">—</span> = <b id="qRes">—</b></div>
+      <div>\(v = S/t\) = <span class="sub" id="qvSub">—</span> = <b id="qvRes">—</b></div>
+      <div id="qNote" class="small">—</div>
+    </div>
+
+    <div class="note tip"><b>Два примера из курса.</b>
+      <div>Бассейн, 100 м за 2 мин 05 с: \(t\) = <span class="sub">2·60 + 5</span> = <b>125 с</b>,
+      \(v\) = <span class="sub">100 / 125</span> = <b>0,80 м/с</b>, темп на 1 км = <b>20:50</b>.</div>
+      <div>Бег, 3000 м за 13 мин 10 с: \(t\) = <span class="sub">13·60 + 10</span> = <b>790 с</b>,
+      \(v\) = <span class="sub">3000 / 790</span> = <b>3,80 м/с</b>, темп на 1 км = <span class="sub">790 / 3</span> = <b>4:23</b>.
+      По таблице 1.1 лекции № 1 результат 13.10 в беге на 3000 м у мужчин
+      соответствует оценке в 3 очка.</div>
+    </div>
+  </section>
+
+  <section id="s-load">
+    <h2>4. Оценка нагрузки по объективным показателям</h2>
+    <p>Раздел 7.3.3 лекции № 7 описывает, как корректировать содержание занятий
+    по объективным показателям. Одну и ту же нагрузку оценивают по четырём
+    признакам: пульсу на пике работы, времени восстановления пульса, частоте
+    дыхания после работы и потере массы тела за занятие. Введите свои значения —
+    расчёт сопоставит их с градациями лекции.</p>
+
+    <div class="controls">
+      <label>ЧСС на пике, уд/мин
+        <input type="number" id="lHr" value="160" min="60" max="220" step="1"></label>
+      <label>восстановление пульса, мин
+        <input type="number" id="lRec" value="12" min="1" max="120" step="1"></label>
+      <label>частота дыхания, 1/мин
+        <input type="number" id="lBr" value="30" min="8" max="80" step="1"></label>
+      <label>потеря массы, г
+        <input type="number" id="lDm" value="400" min="0" max="3000" step="10"></label>
+    </div>
+
+    <div class="calc-out">
+      <div>Пульс: <b id="oHr">—</b> <span class="sub" id="oHrRef">—</span></div>
+      <div>Восстановление: <b id="oRec">—</b> <span class="sub" id="oRecRef">—</span></div>
+      <div>Дыхание: <b id="oBr">—</b> <span class="sub" id="oBrRef">—</span></div>
+      <div>Масса тела: <b id="oDm">—</b> <span class="sub" id="oDmRef">—</span></div>
+      <div id="oSum">—</div>
+    </div>
+
+    <p class="small">Градации приведены дословно по лекции № 7, раздел 7.3.3:
+    пульс — лёгкая нагрузка до 130 уд/мин, средней тяжести 130–150, выше средней
+    150–170, предельная свыше 170; восстановление пульса — после малой нагрузки
+    через 5–7 мин, после средней через 10–15 мин, после высокой через 40–50 мин;
+    частота дыхания — после лёгкой работы 20–25 в минуту, после средней 25–40,
+    после тяжёлой более 40; потеря массы — при малой нагрузке до 300 г, при
+    средней 300–500 г, при большой более 500 г.</p>
+
+    <div class="note med">Накопление утомления лекция описывает набором
+    признаков: бессонница или сонливость, головная боль, потеря аппетита,
+    раздражительность, боль в области сердца, одышка, тошнота. Если такие
+    признаки появились, лекция предписывает снизить нагрузку или временно
+    прекратить занятия и обратиться к врачу; расчёт на этой странице такую
+    оценку не заменяет. Наблюдать за показателями день за днём удобно в
+    <a href="diary">дневнике самоконтроля</a>.</div>
+  </section>
+
+  <section id="s-anthro">
+    <h2>5. Антропометрические индексы</h2>
+    <p>Индексы из раздела 3.5 лекции № 3 связывают массу тела с ростом,
+    жизненной ёмкостью лёгких, силой кисти и обхватом грудной клетки. Лекция
+    прямо называет метод индексов ориентировочным: он позволяет судить о
+    пропорциональности физического развития, но не о состоянии здоровья.
+    Подробнее — в <a href="t3">главе 3</a>.</p>
+
+    <div class="controls">
+      <label>пол
+        <select id="sex5">
+          <option value="m" selected>мужской</option>
+          <option value="f">женский</option>
+        </select></label>
+      <label>рост <i>L</i>, см
+        <input type="number" id="h5" value="180" min="120" max="230" step="0.5"></label>
+      <label>масса <i>m</i>, кг
+        <input type="number" id="m5" value="72" min="30" max="250" step="0.1"></label>
+      <label>ЖЕЛ, мл
+        <input type="number" id="vc5" value="4200" min="500" max="9000" step="50"></label>
+      <label>сила кисти <i>F</i>, кг
+        <input type="number" id="f5" value="48" min="5" max="120" step="1"></label>
+      <label>ОГК вдох, см
+        <input type="number" id="ci5" value="95" min="50" max="160" step="0.5"></label>
+      <label>ОГК выдох, см
+        <input type="number" id="ce5" value="88" min="50" max="160" step="0.5"></label>
+    </div>
+
+    <div class="calc-out">
+      <div>\(\text{ЖИ} = \text{ЖЕЛ}/m\) = <span class="sub" id="viSub">—</span> = <b id="viRes">—</b></div>
+      <div id="viCat" class="small">—</div>
+      <div>\(\text{СИ} = (F/m)\cdot 100\,\%\) = <span class="sub" id="siSub">—</span> = <b id="siRes">—</b></div>
+      <div id="siCat" class="small">—</div>
+      <div>\(\text{ПКС} = L - (m + T_{\text{выд}})\) = <span class="sub" id="pkSub">—</span> = <b id="pkRes">—</b></div>
+      <div id="pkCat" class="small">—</div>
+      <div id="piCat" class="small">—</div>
+      <div>\(\text{ЭГК} = T_{\text{вдох}} - T_{\text{выд}}\) = <span class="sub" id="egSub">—</span> = <b id="egRes">—</b></div>
+      <div id="egCat" class="small">—</div>
+    </div>
+
+    <p class="small">Средние значения по лекции № 3: жизненный индекс 60 мл/кг у
+    мужчин и 50 мл/кг у женщин (у спортсменов 68–70 и 57–60 соответственно);
+    силовой индекс по силе кисти 70–75 % массы у мужчин и 50–60 % у женщин
+    (у спортсменов 75–81 % и 60–70 %). Показатель крепости сложения: менее 10 —
+    крепкое телосложение, 10–20 — хорошее, 21–25 — среднее, 26–35 — слабое,
+    более 36 — очень слабое. Индекс Пинье считается по той же разности
+    <i>L</i> − (<i>p</i> + <i>T</i>), но служит для другой цели — определения
+    типа конституции по М. В. Черноруцкому: больше 30 — астенический, 10–30 —
+    нормостенический, меньше 10 — гиперстенический. Экскурсия грудной клетки:
+    4 см и менее — низкая, 5–9 см — средняя, 10 см и более — высокая.</p>
+
+    <div class="note tip"><b>Оговорка самой лекции.</b> Показатель крепости
+    сложения может ввести в заблуждение, если большие величины массы тела и
+    обхвата грудной клетки связаны не с развитием мускулатуры, а являются
+    следствием ожирения. Это общее свойство всех весоростовых индексов, включая
+    ИМТ из первого расчёта.</div>
+  </section>
+
+  <p><a href="t7">← Глава 7. Самостоятельные занятия и самоконтроль</a> ·
+  <a href="diary">Дневник самоконтроля →</a></p>
+
+  <p class="small">Источник: лекция № 3 «Работоспособность, утомление и
+  здоровье», раздел 3.5, и лекция № 7 «Самостоятельные занятия», разделы
+  7.3.1–7.3.3, кафедра физического воспитания СПбГМТУ; таблицы 1.1 и 1.2 —
+  лекция № 1. Индекс массы тела со шкалой ВОЗ и формула Карвонена в лекциях
+  кафедры отсутствуют и приведены как внешние общеупотребительные способы
+  расчёта.</p>
+</main>
+<script>
+'use strict';
+(function () {
+  var main = document.querySelector('main');
+  function $(id) { return document.getElementById(id); }
+  function val(id) {
+    var el = $(id);
+    if (!el) return NaN;
+    var v = parseFloat(String(el.value).replace(',', '.'));
+    return Number.isFinite(v) ? v : NaN;
+  }
+  function pick(id) { var el = $(id); return el ? el.value : ''; }
+  function set(id, text) { var el = $(id); if (el) el.textContent = text; }
+  function f(x, d) { return Number.isFinite(x) ? x.toFixed(d).replace('.', ',') : '—'; }
+  var DASH = '—';
+
+  /* мин:с с ведущим нулём у секунд */
+  function mmss(sec) {
+    if (!Number.isFinite(sec) || sec < 0) return DASH;
+    var total = Math.round(sec);
+    var m = Math.floor(total / 60);
+    var s = total - m * 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  /* ===== 1. масса тела и рост ===== */
+  function calcBody() {
+    var m = val('m1'), Lcm = val('h1'), sex = pick('sex1');
+    if (!(m > 0) || !(Lcm > 0)) {
+      set('bmiSub', DASH); set('bmiRes', DASH); set('bmiCat', 'Введите массу и рост.');
+      set('ketSub', DASH); set('ketRes', DASH); set('ketCat', DASH);
+      set('brSub', DASH); set('brRes', DASH); set('brCat', DASH);
+      return;
+    }
+    var Lm = Lcm / 100;
+    var bmi = m / (Lm * Lm);
+    set('bmiSub', f(m, 1) + ' / ' + f(Lm, 2) + '²');
+    set('bmiRes', f(bmi, 1) + ' кг/м²');
+    var cat;
+    if (bmi < 18.5) cat = 'дефицит массы тела (менее 18,5)';
+    else if (bmi < 25) cat = 'норма (18,5–24,9)';
+    else if (bmi < 30) cat = 'избыточная масса тела (25,0–29,9)';
+    else cat = 'ожирение (30,0 и более)';
+    set('bmiCat', 'Категория по шкале ВОЗ: ' + cat + '. ИМТ не различает мышечную и '
+      + 'жировую массу и не является диагнозом.');
+
+    var ket = (m * 1000) / Lcm;
+    set('ketSub', Math.round(m * 1000) + ' / ' + f(Lcm, 0));
+    set('ketRes', f(ket, 0) + ' г/см');
+    var lo = sex === 'f' ? 325 : 350, hi = sex === 'f' ? 375 : 400;
+    var kc;
+    if (ket < lo) kc = 'ниже средних значений';
+    else if (ket <= hi) kc = 'в пределах средних значений';
+    else kc = 'выше средних значений';
+    set('ketCat', 'Средние значения по лекции № 3: ' + lo + '–' + hi + ' г/см ('
+      + (sex === 'f' ? 'женщины' : 'мужчины') + ') — расчёт даёт ' + kc + '.');
+
+    var k = Lcm < 165 ? 100 : (Lcm < 175 ? 105 : 110);
+    var due = Lcm - k;
+    set('brSub', f(Lcm, 0) + ' − ' + k);
+    set('brRes', f(due, 1) + ' кг');
+    var diff = m - due;
+    set('brCat', 'Должная масса по Броку — Бругшу при росте ' + f(Lcm, 0) + ' см: вычитается '
+      + k + '. Измеренная масса отличается на ' + (diff >= 0 ? '+' : '−') + f(Math.abs(diff), 1)
+      + ' кг (' + (diff >= 0 ? '+' : '−') + f(Math.abs(diff) / due * 100, 1) + ' %).');
+  }
+
+  /* ===== 2. пульсовые зоны ===== */
+  function zoneByLecture(hr) {
+    if (!Number.isFinite(hr)) return DASH;
+    if (hr <= 130) return 'лёгкая нагрузка (до 130)';
+    if (hr <= 150) return 'средней тяжести (130–150)';
+    if (hr <= 170) return 'выше средней (150–170)';
+    return 'предельная (свыше 170)';
+  }
+  function energyZone(hr) {
+    if (!Number.isFinite(hr)) return DASH;
+    if (hr < 131) return 'ниже аэробной зоны лекции (менее 131 уд/мин)';
+    if (hr <= 150) return 'аэробная зона (131–150 уд/мин)';
+    if (hr <= 180) return 'смешанная зона (151–180 уд/мин)';
+    return 'выше смешанной зоны лекции (более 180 уд/мин)';
+  }
+  var PX0 = 60, PX1 = 600, PH0 = 100, PH1 = 200;
+  function px(hr) {
+    var h = Math.min(PH1, Math.max(PH0, hr));
+    return PX0 + (h - PH0) * (PX1 - PX0) / (PH1 - PH0);
+  }
+  function attr(id, name, v) { var el = $(id); if (el) el.setAttribute(name, v); }
+
+  function calcPulse() {
+    var age = val('age'), rest = val('hrRest'), pct = val('hrPct');
+    var ok = age > 0 && rest > 0 && pct > 0;
+    var hmax = ok ? 220 - age : NaN;
+    var res = ok ? hmax - rest : NaN;
+    var d = ok ? pct / 100 : NaN;
+    var tgt = ok ? rest + d * res : NaN;
+
+    set('hmSub', ok ? '220 − ' + f(age, 0) : DASH);
+    set('hmRes', ok ? f(hmax, 0) + ' уд/мин' : DASH);
+    set('hrsSub', ok ? f(hmax, 0) + ' − ' + f(rest, 0) : DASH);
+    set('hrsRes', ok ? f(res, 0) + ' уд/мин' : DASH);
+    set('htSub', ok ? f(rest, 0) + ' + ' + f(d, 2) + ' · ' + f(res, 0) : DASH);
+    set('htRes', ok ? f(tgt, 0) + ' уд/мин' : DASH);
+    set('hZone', ok ? 'Зона энергообеспечения по лекции № 7: ' + energyZone(tgt) + '.' : DASH);
+    set('hGrad', ok ? 'Градация величины нагрузки по пульсу: ' + zoneByLecture(tgt) + '.' : DASH);
+
+    [50, 60, 70, 80, 90].forEach(function (p) {
+      var v = ok ? rest + p / 100 * res : NaN;
+      set('k' + p, ok ? f(v, 0) : DASH);
+      set('k' + p + 'z', ok ? zoneByLecture(v) : DASH);
+    });
+
+    var xm = px(Number.isFinite(hmax) ? hmax : PH1);
+    attr('pMaxLn', 'x1', xm); attr('pMaxLn', 'x2', xm);
+    attr('pOver', 'x', xm); attr('pOver', 'width', Math.max(0, PX1 - xm));
+
+    var x = px(Number.isFinite(tgt) ? tgt : PH0);
+    attr('pMark', 'x1', x); attr('pMark', 'x2', x);
+    attr('pMark2', 'x1', x); attr('pMark2', 'x2', x);
+    attr('pDot', 'cx', x);
+    var out = ok && (tgt < PH0 || tgt > PH1) ? ', метка на краю шкалы' : '';
+    set('pLbl1', ok ? 'целевая ЧСС ' + f(tgt, 0) + ' уд/мин' : 'целевая ЧСС —');
+    set('pLbl2', ok ? f(pct, 0) + ' % резерва, ЧСС макс ' + f(hmax, 0) + out : '— % резерва');
+    /* подпись держим внутри поля: половина её ширины не должна вылезать за края */
+    ['pLbl1', 'pLbl2'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      var w = 0;
+      try { w = el.getComputedTextLength(); } catch (e) { w = 0; }
+      var half = w / 2;
+      var lo = 10 + half, hi = 630 - half;
+      var lx = lo > hi ? 320 : Math.min(hi, Math.max(lo, x));
+      el.setAttribute('x', lx);
+    });
+  }
+
+  /* ===== 3. темп и время ===== */
+  function calcPace() {
+    var S = val('pS'), mi = val('pMin'), se = val('pSec');
+    if (!Number.isFinite(mi)) mi = 0;
+    if (!Number.isFinite(se)) se = 0;
+    var t = mi * 60 + se;
+    if (!(S > 0) || !(t > 0)) {
+      ['tSub', 'tRes', 'vSub', 'vRes', 'p100Sub', 'p100Res', 'p1kSub', 'p1kRes']
+        .forEach(function (id) { set(id, DASH); });
+    } else {
+      var v = S / t;
+      set('tSub', '60 · ' + f(mi, 0) + ' + ' + f(se, 0));
+      set('tRes', f(t, 0) + ' с');
+      set('vSub', f(S, 0) + ' / ' + f(t, 0));
+      set('vRes', f(v, 2) + ' м/с');
+      set('p100Sub', '100 / ' + f(v, 2) + ' = ' + f(100 / v, 1) + ' с');
+      set('p100Res', mmss(100 / v) + ' на 100 м');
+      set('p1kSub', '1000 / ' + f(v, 2) + ' = ' + f(1000 / v, 1) + ' с');
+      set('p1kRes', mmss(1000 / v) + ' на 1 км');
+    }
+
+    var S2 = val('qS'), qm = val('qMin'), qs = val('qSec');
+    if (!Number.isFinite(qm)) qm = 0;
+    if (!Number.isFinite(qs)) qs = 0;
+    var pace = qm * 60 + qs;
+    if (!(S2 > 0) || !(pace > 0)) {
+      ['qSub', 'qRes', 'qvSub', 'qvRes'].forEach(function (id) { set(id, DASH); });
+      set('qNote', 'Задайте дистанцию и темп.');
+      return;
+    }
+    var t2 = S2 / 1000 * pace;
+    var v2 = S2 / t2;
+    set('qSub', '(' + f(S2, 0) + ' / 1000) · ' + f(pace, 0) + ' с');
+    set('qRes', mmss(t2) + ' (' + f(t2, 0) + ' с)');
+    set('qvSub', f(S2, 0) + ' / ' + f(t2, 0));
+    set('qvRes', f(v2, 2) + ' м/с');
+    set('qNote', 'Темп ' + mmss(pace) + ' на 1 км соответствует ' + mmss(pace / 10)
+      + ' на 100 м; при таком темпе дистанция ' + f(S2, 0) + ' м проходится за '
+      + mmss(t2) + '.');
+  }
+
+  /* ===== 4. оценка нагрузки ===== */
+  function calcLoad() {
+    var hr = val('lHr'), rec = val('lRec'), br = val('lBr'), dm = val('lDm');
+    var lv = [];
+
+    if (Number.isFinite(hr)) {
+      var sHr;
+      if (hr <= 130) { sHr = 'лёгкая нагрузка'; lv.push(1); }
+      else if (hr <= 150) { sHr = 'нагрузка средней тяжести'; lv.push(2); }
+      else if (hr <= 170) { sHr = 'нагрузка выше средней'; lv.push(3); }
+      else { sHr = 'предельная нагрузка'; lv.push(3); }
+      set('oHr', sHr);
+      set('oHrRef', '(' + f(hr, 0) + ' уд/мин; лекция № 7: до 130 / 130–150 / 150–170 / свыше 170)');
+    } else { set('oHr', DASH); set('oHrRef', ''); }
+
+    if (Number.isFinite(rec)) {
+      var sRec;
+      if (rec <= 7) { sRec = 'малая нагрузка'; lv.push(1); }
+      else if (rec <= 15) { sRec = 'средняя нагрузка'; lv.push(2); }
+      else if (rec <= 39) { sRec = 'между средней и высокой'; lv.push(2); }
+      else if (rec <= 50) { sRec = 'высокая нагрузка'; lv.push(3); }
+      else { sRec = 'восстановление дольше ориентиров лекции'; lv.push(3); }
+      set('oRec', sRec);
+      set('oRecRef', '(' + f(rec, 0) + ' мин; лекция № 7: 5–7 мин после малой, 10–15 после средней, 40–50 после высокой)');
+    } else { set('oRec', DASH); set('oRecRef', ''); }
+
+    if (Number.isFinite(br)) {
+      var sBr;
+      if (br < 20) { sBr = 'ниже ориентиров лекции для лёгкой работы'; lv.push(1); }
+      else if (br <= 25) { sBr = 'лёгкая работа'; lv.push(1); }
+      else if (br <= 40) { sBr = 'работа средней тяжести'; lv.push(2); }
+      else { sBr = 'тяжёлая работа'; lv.push(3); }
+      set('oBr', sBr);
+      set('oBrRef', '(' + f(br, 0) + ' дыханий в минуту; лекция № 7: 20–25 / 25–40 / более 40)');
+    } else { set('oBr', DASH); set('oBrRef', ''); }
+
+    if (Number.isFinite(dm)) {
+      var sDm;
+      if (dm <= 300) { sDm = 'малая нагрузка'; lv.push(1); }
+      else if (dm <= 500) { sDm = 'средняя нагрузка'; lv.push(2); }
+      else { sDm = 'большая нагрузка'; lv.push(3); }
+      set('oDm', sDm);
+      set('oDmRef', '(потеря ' + f(dm, 0) + ' г; лекция № 7: до 300 г / 300–500 г / более 500 г)');
+    } else { set('oDm', DASH); set('oDmRef', ''); }
+
+    if (lv.length < 2) { set('oSum', 'Для общего вывода нужно не менее двух показателей.'); return; }
+    var mn = Math.min.apply(null, lv), mx = Math.max.apply(null, lv);
+    var names = ['малой', 'средней', 'высокой'];
+    var cnt = [0, 0, 0];
+    lv.forEach(function (x) { cnt[x - 1]++; });
+    var best = cnt.indexOf(Math.max.apply(null, cnt));
+    if (mx - mn <= 1) {
+      set('oSum', 'Показатели сходятся между собой: большинство из них указывает на нагрузку '
+        + names[best] + ' величины. Разброс в одну ступень для разных признаков обычен.');
+    } else {
+      set('oSum', 'Показатели расходятся: одни признаки соответствуют нагрузке малой величины, '
+        + 'другие — высокой. Расхождение чаще всего означает ошибку измерения (пульс сосчитан '
+        + 'не сразу после работы, масса измерена в разной одежде) либо влияние внешних условий '
+        + '— жары, духоты, недосыпания. Опираться в этом случае стоит на наблюдение за '
+        + 'несколькими занятиями подряд, а не на один замер.');
+    }
+  }
+
+  /* ===== 5. антропометрические индексы ===== */
+  function calcAnthro() {
+    var sex = pick('sex5'), L = val('h5'), m = val('m5'), vc = val('vc5'),
+      F = val('f5'), ci = val('ci5'), ce = val('ce5');
+    var w = sex === 'f';
+
+    if (m > 0 && vc > 0) {
+      var vi = vc / m;
+      set('viSub', f(vc, 0) + ' / ' + f(m, 1));
+      set('viRes', f(vi, 1) + ' мл/кг');
+      var vAvg = w ? 50 : 60;
+      set('viCat', 'Средняя величина по лекции № 3 — ' + vAvg + ' мл/кг ('
+        + (w ? 'женщины' : 'мужчины') + '), у ' + (w ? 'спортсменок 57–60' : 'спортсменов 68–70')
+        + ' мл/кг; расчёт ' + (vi < vAvg ? 'ниже' : (vi > vAvg ? 'выше' : 'совпадает с')) + ' средней.');
+    } else { set('viSub', DASH); set('viRes', DASH); set('viCat', DASH); }
+
+    if (m > 0 && F > 0) {
+      var si = F / m * 100;
+      set('siSub', '(' + f(F, 0) + ' / ' + f(m, 1) + ') · 100 %');
+      set('siRes', f(si, 1) + ' %');
+      var slo = w ? 50 : 70, shi = w ? 60 : 75;
+      var sv = si < slo ? 'ниже средних значений' : (si <= shi ? 'в пределах средних значений' : 'выше средних значений');
+      set('siCat', 'Средние значения по лекции № 3 — ' + slo + '–' + shi + ' % массы тела ('
+        + (w ? 'женщины' : 'мужчины') + '); расчёт ' + sv + '.');
+    } else { set('siSub', DASH); set('siRes', DASH); set('siCat', DASH); }
+
+    if (L > 0 && m > 0 && ce > 0) {
+      var pk = L - (m + ce);
+      set('pkSub', f(L, 0) + ' − (' + f(m, 1) + ' + ' + f(ce, 0) + ')');
+      set('pkRes', f(pk, 1));
+      var pc;
+      if (pk < 10) pc = 'крепкое телосложение (менее 10)';
+      else if (pk <= 20) pc = 'хорошее (10–20)';
+      else if (pk <= 25) pc = 'среднее (21–25)';
+      else if (pk <= 35) pc = 'слабое (26–35)';
+      else pc = 'очень слабое (более 36)';
+      set('pkCat', 'Показатель крепости сложения: ' + pc + '. Лекция оговаривает, что показатель '
+        + 'вводит в заблуждение, если большие масса и обхват груди связаны не с мускулатурой.');
+      var tc;
+      if (pk > 30) tc = 'астенический (индекс больше 30)';
+      else if (pk >= 10) tc = 'нормостенический (индекс 10–30)';
+      else tc = 'гиперстенический (индекс меньше 10)';
+      set('piCat', 'Индекс Пинье считается по той же разности и равен ' + f(pk, 1)
+        + '; тип конституции по М. В. Черноруцкому — ' + tc + '.');
+    } else {
+      set('pkSub', DASH); set('pkRes', DASH); set('pkCat', DASH); set('piCat', DASH);
+    }
+
+    if (ci > 0 && ce > 0) {
+      var eg = ci - ce;
+      set('egSub', f(ci, 0) + ' − ' + f(ce, 0));
+      set('egRes', f(eg, 1) + ' см');
+      var ec;
+      if (eg <= 4) ec = 'низкая (4 см и менее)';
+      else if (eg <= 9) ec = 'средняя (5–9 см)';
+      else ec = 'высокая (10 см и более)';
+      set('egCat', 'Экскурсия грудной клетки: ' + ec + '.');
+    } else { set('egSub', DASH); set('egRes', DASH); set('egCat', DASH); }
+  }
+
+  function updateAll() {
+    calcBody();
+    calcPulse();
+    calcPace();
+    calcLoad();
+    calcAnthro();
+  }
+
+  if (main) {
+    main.addEventListener('input', updateAll);
+    main.addEventListener('change', updateAll);
+  }
+  updateAll();
+})();
+</script>
+</body>
+</html>

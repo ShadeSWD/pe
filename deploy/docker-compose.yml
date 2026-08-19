@@ -1,0 +1,20 @@
+# name обязателен: без него имя проекта берётся из каталога «deploy» и
+# конфликтует с другими компоузами на этом сервере (урок reduktor/relmet).
+name: pe
+
+services:
+  web:
+    image: nginx:alpine
+    container_name: pe-web
+    restart: unless-stopped
+    # Сайту не нужна своя docker-сеть: он общается с миром только через
+    # опубликованный порт. На сервере пул адресов docker уже разобран под
+    # сети соседних компоузов («all predefined address pools have been fully
+    # subnetted»), поэтому подключаемся к штатному bridge и новой сети не
+    # создаём.
+    network_mode: bridge
+    ports:
+      - "127.0.0.1:8094:80"
+    volumes:
+      - ../site:/usr/share/nginx/html:ro
+      - ./nginx-default.conf:/etc/nginx/conf.d/default.conf:ro

@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дневник самоконтроля — Физическая культура и спорт</title>
+<meta name="description" content="Дневник самоконтроля по лекции № 7: субъективные и объективные показатели, запись ЧСС покоя, массы тела, сна, аппетита и нагрузки, график динамики и выгрузка в CSV. Данные хранятся только в браузере.">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .diary-form .wide input[type=text] { width: 260px; max-width: 100%; }
+  .diary-bar { display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; font: 14px system-ui, sans-serif; }
+  .diary-bar .file { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .diary-bar label.btn { display: inline-block; margin: 0; }
+  table.diary td.del button { border: 1px solid var(--line); background: var(--paper); border-radius: 6px; cursor: pointer; font: 13px system-ui, sans-serif; padding: 2px 8px; color: var(--muted); }
+  table.diary td.del button:hover { border-color: var(--red); color: var(--red); }
+  .sum { font: 15px system-ui, sans-serif; margin: 10px 0; }
+  .sum b { color: var(--accent); }
+</style>
+</head>
+<body>
+<script src="assets/shell.js"></script>
+<script src="assets/site.js" data-root="./" data-page="diary"></script>
+<main class="wrap">
+  <h1>Дневник самоконтроля</h1>
+  <p class="lead">Самоконтроль — это самостоятельное наблюдение за состоянием
+  своего здоровья, физическим развитием, функциональным состоянием организма и
+  физической подготовленностью, а также за их изменениями под влиянием занятий
+  физическими упражнениями. Лекция № 7 называет ведение дневника самой удобной
+  формой такого наблюдения. Эта страница — учебный вариант такого дневника:
+  запись за день, таблица наблюдений и график динамики.</p>
+
+  <div class="note med">Дневник — инструмент наблюдения, а не диагностики. Он не
+  ставит диагноз и не оценивает здоровье: он лишь показывает, как меняются
+  несколько простых показателей день ото дня. При устойчивом ухудшении
+  показателей — росте утреннего пульса, потере аппетита, нарушениях сна,
+  длительных болевых ощущениях — лекция предписывает обратиться к врачу. Режим
+  занятий в этом случае определяют врач и преподаватель кафедры физического
+  воспитания, а не расчёт на сайте.</div>
+
+  <div class="short"><b>Коротко.</b>
+    <ul>
+      <li>Показатели самоконтроля делятся на субъективные (самочувствие,
+      настроение, сон, аппетит, болевые ощущения, отношение к занятиям) и
+      объективные (ЧСС, масса тела, сила мышц, ЖЕЛ, спортивные результаты).</li>
+      <li>Дневник может быть подробным — 15–20 показателей и более — или кратким,
+      из 5–8 показателей; важнее полнота не списка, а регулярности записей.</li>
+      <li>Признаки чрезмерной нагрузки: накопление утомления, бессонница или
+      сонливость, головная боль, потеря аппетита, раздражительность, боль в
+      области сердца, одышка, тошнота.</li>
+      <li>Смысл дневника — в сравнении: одна запись почти ничего не говорит,
+      ряд записей за несколько недель показывает направление изменений.</li>
+    </ul>
+  </div>
+
+  <h2>Зачем вести дневник</h2>
+  <p>Лекция № 7 (<a href="t7">глава 7</a>, разделы 7.3.2 и 7.3.3) описывает
+  самоконтроль как часть управления самостоятельными занятиями. Управлять
+  занятиями — значит определять цель, учитывать индивидуальные особенности,
+  составлять и корректировать планы; сделать это без записей невозможно, потому
+  что корректировать приходится по результату, а результат нужно чем-то мерить.
+  Лекция рекомендует вести предварительный, текущий и итоговый учёт: первый
+  фиксирует исходный уровень подготовленности, второй позволяет анализировать
+  ход занятий, третий — сопоставить в конце периода данные о состоянии здоровья,
+  тренированности и об объёме проделанной работы.</p>
+
+  <p>Показатели самоконтроля лекция делит на две группы. К <b>субъективным</b>
+  относятся самочувствие, настроение, наличие или отсутствие болевых и других
+  неприятных ощущений, сон, аппетит, отношение к занятиям. Самочувствие
+  отмечается как хорошее, удовлетворительное или плохое; при плохом
+  дополнительно записывается характер необычных ощущений. По сну отмечают
+  продолжительность и глубину, а также нарушения — трудное засыпание,
+  беспокойный сон, бессонницу, недосыпание. Аппетит отмечают как хороший,
+  удовлетворительный, пониженный или плохой: отклонения в состоянии здоровья
+  быстро сказываются на аппетите, и его ухудшение обычно оказывается следствием
+  переутомления или заболевания. Боли в мышцах у начинающих на первом этапе
+  занятий — явление закономерное, но при продолжительных болевых ощущениях
+  любого рода лекция предписывает обратиться к врачу.</p>
+
+  <p>К <b>объективным</b> показателям относятся частота пульса, масса тела, сила
+  мышц, жизненная ёмкость лёгких, спортивные результаты — всё, что можно
+  измерить и выразить количественно. Именно они дают ряд чисел, который можно
+  сравнивать во времени. Утренний пульс в покое и масса тела удобны тем, что
+  меряются дома, быстро и одинаковым способом изо дня в день; в этом дневнике
+  они и вынесены на график. Представителям циклических видов спорта лекция
+  советует тщательно контролировать ЧСС, артериальное давление и ЖЕЛ, а
+  занимающимся силовыми видами — прежде всего массу тела и развитие силы.
+  Оценить величину отдельного занятия помогают расчёты
+  <a href="calc">на странице расчётов</a>: пульс на пике работы, время
+  восстановления, частота дыхания и потеря массы за занятие.</p>
+
+  <p>Отдельная задача дневника — вовремя увидеть чрезмерную нагрузку. Если она
+  превышает возможности организма, утомление накапливается постепенно: появляются
+  бессонница или, наоборот, повышенная сонливость, головная боль, потеря
+  аппетита, раздражительность, боль в области сердца, одышка, тошнота. В этом
+  случае лекция предписывает снизить нагрузку или временно прекратить занятия.
+  Записи за две-три недели показывают такие изменения раньше, чем они станут
+  очевидны: утренний пульс, выросший на 8–10 ударов и не возвращающийся к
+  прежним значениям, вместе с ухудшением сна и аппетита — сочетание, ради
+  которого дневник и ведётся. Студенты специального учебного отделения, по
+  лекции, обязаны периодически показывать результаты своих наблюдений
+  преподавателю физического воспитания и врачу.</p>
+
+  <h2>Запись за день</h2>
+  <p>Пульс в покое считают утром, не вставая с постели, за 30 или 60 секунд;
+  массу тела измеряют натощак, на одних и тех же весах и в одинаковой одежде —
+  иначе колебания измерения окажутся больше, чем изменения, которые вы хотите
+  увидеть. Запись с уже существующей датой заменяется новой.</p>
+
+  <div class="diary-form" id="dForm">
+    <label>дата<input type="date" id="dDate"></label>
+    <label>ЧСС покоя, уд/мин<input type="number" id="dHr" min="30" max="140" step="1" placeholder="58"></label>
+    <label>масса тела, кг<input type="number" id="dMass" min="30" max="250" step="0.1" placeholder="72,0"></label>
+    <label>самочувствие<select id="dWell">
+      <option value="хорошее" selected>хорошее</option>
+      <option value="удовлетворительное">удовлетворительное</option>
+      <option value="плохое">плохое</option>
+    </select></label>
+    <label>сон, ч<input type="number" id="dSleepH" min="0" max="16" step="0.5" placeholder="7,5"></label>
+    <label>качество сна<select id="dSleepQ">
+      <option value="глубокий" selected>глубокий</option>
+      <option value="беспокойный">беспокойный</option>
+      <option value="трудное засыпание">трудное засыпание</option>
+      <option value="недосыпание">недосыпание</option>
+    </select></label>
+    <label>аппетит<select id="dApp">
+      <option value="хороший" selected>хороший</option>
+      <option value="удовлетворительный">удовлетворительный</option>
+      <option value="пониженный">пониженный</option>
+      <option value="плохой">плохой</option>
+    </select></label>
+    <label>нагрузка за день<select id="dLoad">
+      <option value="нет">нет</option>
+      <option value="лёгкая" selected>лёгкая</option>
+      <option value="средняя">средняя</option>
+      <option value="высокая">высокая</option>
+    </select></label>
+    <label class="wide">заметка<input type="text" id="dNote" maxlength="200" placeholder="болевые ощущения, настроение, отношение к занятиям"></label>
+  </div>
+
+  <div class="diary-bar">
+    <button type="button" class="btn primary" id="dSave">Сохранить запись</button>
+    <button type="button" class="btn" id="dCsv">Выгрузить в CSV</button>
+    <label class="btn" for="dFile">Загрузить CSV</label>
+    <input type="file" id="dFile" class="file" accept=".csv,text/csv">
+    <button type="button" class="btn" id="dClear">Очистить дневник</button>
+    <span class="small" id="dMsg"></span>
+  </div>
+
+  <div class="note tip"><b>Где хранятся записи.</b> Всё, что вы вводите, остаётся
+  в памяти этого браузера (<code>localStorage</code>, ключ
+  <code>pe-diary-v1</code>) на этом устройстве. Записи никуда не отправляются: у
+  страницы нет ни сервера, ни базы данных, ни учётных записей. Обратная сторона
+  этого — записи пропадут вместе с очисткой данных браузера и не появятся на
+  другом устройстве, поэтому дневник, который ведётся долго, стоит время от
+  времени выгружать в CSV.</div>
+
+  <h2>Наблюдения</h2>
+  <div class="sum" id="dSum">Записей пока нет.</div>
+  <table class="diary" id="dTable">
+    <thead>
+      <tr><th>Дата</th><th>ЧСС покоя</th><th>Масса, кг</th><th>Самочувствие</th>
+      <th>Сон</th><th>Аппетит</th><th>Нагрузка</th><th>Заметка</th><th></th></tr>
+    </thead>
+    <tbody id="dBody"></tbody>
+  </table>
+
+  <h2>Динамика</h2>
+  <div class="panel">
+    <svg id="dChart" viewBox="0 0 640 300" class="geo-board" style="max-width:640px"></svg>
+    <div class="caption">Две кривые построены по одним и тем же датам: ЧСС покоя
+    читается по левой оси, масса тела — по правой. Под осью дат — полоса
+    самочувствия за те же дни. Смотреть здесь стоит не на отдельные точки, а на
+    направление: одиночный скачок пульса или массы чаще говорит об условиях
+    измерения, устойчивый подъём утреннего пульса на фоне ухудшения сна и
+    аппетита — о накоплении утомления.</div>
+  </div>
+
+  <h2>Вопросы для самопроверки</h2>
+  <details class="q"><summary>Какие показатели самоконтроля относятся к субъективным, а какие к объективным?</summary>
+    <p>Субъективные — самочувствие, настроение, наличие болевых и других
+    неприятных ощущений, сон, аппетит, отношение к занятиям. Объективные — те,
+    что можно измерить и выразить количественно: частота пульса, масса тела,
+    сила мышц, жизненная ёмкость лёгких, спортивные результаты.</p></details>
+  <details class="q"><summary>По каким признакам можно заподозрить чрезмерную нагрузку?</summary>
+    <p>По лекции № 7: постепенно накапливается утомление, появляются бессонница
+    или повышенная сонливость, головная боль, потеря аппетита, раздражительность,
+    боль в области сердца, одышка, тошнота. В этом случае нагрузку необходимо
+    снизить или временно прекратить занятия.</p></details>
+  <details class="q"><summary>Зачем в дневнике нужны и предварительный, и текущий, и итоговый учёт?</summary>
+    <p>Предварительный учёт фиксирует исходный уровень физической и спортивной
+    подготовленности, текущий позволяет анализировать показатели занятий —
+    количество тренировок, объём и интенсивность работы, результаты тестов, —
+    а итоговый в конце периода сопоставляет данные о состоянии здоровья и
+    тренированности с объёмом проделанной работы, и по этому сопоставлению
+    корректируются планы на следующий цикл.</p></details>
+
+  <p><a href="t7">← Глава 7. Самостоятельные занятия и самоконтроль</a> ·
+  <a href="calc">Расчёты и оценки</a> · <a href="tasks">Задания по технике</a></p>
+
+  <p class="small">Источник: лекция № 7 «Самостоятельные занятия студентов
+  физическими упражнениями и спортом», разделы 7.3.1–7.3.3, кафедра физического
+  воспитания СПбГМТУ.</p>
+</main>
+<script>
+'use strict';
+(function () {
+  var KEY = 'pe-diary-v1';
+  var SVG = 'http://www.w3.org/2000/svg';
+  var MOOD = { 'хорошее': '#1a7f37', 'удовлетворительное': '#6b6b74', 'плохое': '#b3382e' };
+
+  function $(id) { return document.getElementById(id); }
+  function num(v) { var x = parseFloat(String(v).replace(',', '.')); return Number.isFinite(x) ? x : null; }
+  function f(x, d) { return (x === null || x === undefined || !Number.isFinite(x)) ? '' : x.toFixed(d).replace('.', ','); }
+
+  function plural(n, one, few, many) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    var w = (a > 10 && a < 20) || b === 0 || b > 4 ? many : (b === 1 ? one : few);
+    return n + ' ' + w;
+  }
+  function todayISO() {
+    var t = new Date();
+    var mm = String(t.getMonth() + 1).padStart(2, '0');
+    var dd = String(t.getDate()).padStart(2, '0');
+    return t.getFullYear() + '-' + mm + '-' + dd;
+  }
+  function isoOk(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s); }
+  function ru(iso) {
+    if (!isoOk(iso)) return iso || '';
+    var p = iso.split('-');
+    return p[2] + '.' + p[1] + '.' + p[0];
+  }
+  function shortRu(iso) {
+    if (!isoOk(iso)) return '';
+    var p = iso.split('-');
+    return p[2] + '.' + p[1];
+  }
+  function toISO(s) {
+    s = String(s || '').trim();
+    if (isoOk(s)) return s;
+    var m = s.match(/^(\d{2})[.\/](\d{2})[.\/](\d{4})$/);
+    return m ? (m[3] + '-' + m[2] + '-' + m[1]) : '';
+  }
+  function daysBetween(a, b) {
+    var t1 = Date.parse(a + 'T00:00:00Z'), t2 = Date.parse(b + 'T00:00:00Z');
+    if (!Number.isFinite(t1) || !Number.isFinite(t2)) return null;
+    return Math.round((t2 - t1) / 86400000);
+  }
+
+  /* ===== хранилище ===== */
+  function load() {
+    var raw;
+    try { raw = window.localStorage.getItem(KEY); } catch (e) { return []; }
+    if (!raw) return [];
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return []; }
+    if (!Array.isArray(data)) return [];
+    return data.filter(function (r) { return r && isoOk(r.date); }).map(function (r) {
+      return {
+        date: r.date,
+        hr: Number.isFinite(r.hr) ? r.hr : null,
+        mass: Number.isFinite(r.mass) ? r.mass : null,
+        well: MOOD[r.well] ? r.well : 'удовлетворительное',
+        sleepH: Number.isFinite(r.sleepH) ? r.sleepH : null,
+        sleepQ: String(r.sleepQ || ''),
+        app: String(r.app || ''),
+        load: String(r.load || ''),
+        note: String(r.note || '')
+      };
+    }).sort(byDate);
+  }
+  function save(list) {
+    try { window.localStorage.setItem(KEY, JSON.stringify(list)); return true; }
+    catch (e) { msg('Не удалось сохранить: браузер запретил локальное хранилище.'); return false; }
+  }
+  function byDate(a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); }
+
+  var rows = load();
+
+  function msg(text) {
+    var el = $('dMsg');
+    if (el) el.textContent = text || '';
+  }
+
+  /* ===== таблица ===== */
+  function renderTable() {
+    var body = $('dBody');
+    if (!body) return;
+    while (body.firstChild) body.removeChild(body.firstChild);
+    var desc = rows.slice().sort(byDate).reverse();
+    if (!desc.length) {
+      var tr0 = document.createElement('tr');
+      var td0 = document.createElement('td');
+      td0.colSpan = 9;
+      td0.className = 'muted';
+      td0.textContent = 'Записей пока нет.';
+      tr0.appendChild(td0);
+      body.appendChild(tr0);
+      return;
+    }
+    desc.forEach(function (r) {
+      var tr = document.createElement('tr');
+      function cell(text, cls) {
+        var td = document.createElement('td');
+        if (cls) td.className = cls;
+        td.textContent = text;
+        tr.appendChild(td);
+        return td;
+      }
+      cell(ru(r.date), 'num');
+      cell(r.hr === null ? '—' : String(r.hr), 'num');
+      cell(r.mass === null ? '—' : f(r.mass, 1), 'num');
+      cell(r.well);
+      cell((r.sleepH === null ? '—' : f(r.sleepH, 1) + ' ч') + (r.sleepQ ? ', ' + r.sleepQ : ''));
+      cell(r.app || '—');
+      cell(r.load || '—');
+      cell(r.note || '');
+      var td = cell('', 'del');
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = 'удалить';
+      b.setAttribute('data-date', r.date);
+      td.appendChild(b);
+      body.appendChild(tr);
+    });
+  }
+
+  /* ===== сводка ===== */
+  function renderSummary() {
+    var el = $('dSum');
+    if (!el) return;
+    if (!rows.length) { el.textContent = 'Записей пока нет.'; return; }
+    var hrs = rows.filter(function (r) { return r.hr !== null; });
+    var ms = rows.filter(function (r) { return r.mass !== null; });
+    var parts = ['Записей: ' + rows.length];
+    if (hrs.length) {
+      var avg = hrs.reduce(function (s, r) { return s + r.hr; }, 0) / hrs.length;
+      parts.push('средняя ЧСС покоя ' + f(avg, 1) + ' уд/мин');
+    }
+    if (ms.length >= 2) {
+      var d = ms[ms.length - 1].mass - ms[0].mass;
+      parts.push('масса ' + f(ms[0].mass, 1) + ' → ' + f(ms[ms.length - 1].mass, 1)
+        + ' кг (' + (d > 0 ? '+' : (d < 0 ? '−' : '±')) + f(Math.abs(d), 1) + ' кг)');
+    } else if (ms.length === 1) {
+      parts.push('масса ' + f(ms[0].mass, 1) + ' кг (одна запись)');
+    }
+    if (rows.length >= 2) {
+      var n = daysBetween(rows[0].date, rows[rows.length - 1].date);
+      if (n !== null) parts.push('период ' + ru(rows[0].date) + ' — ' + ru(rows[rows.length - 1].date)
+        + ', ' + plural(n + 1, 'день', 'дня', 'дней'));
+    }
+    el.textContent = parts.join(' · ') + '.';
+  }
+
+  /* ===== график ===== */
+  function el(name, attrs, text) {
+    var n = document.createElementNS(SVG, name);
+    if (attrs) Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  }
+  var FS = 'font:11px system-ui';
+
+  function niceDomain(vals, pad, minSpan) {
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    if (hi - lo < minSpan) { var mid = (hi + lo) / 2; lo = mid - minSpan / 2; hi = mid + minSpan / 2; }
+    else { lo -= pad; hi += pad; }
+    return [lo, hi];
+  }
+
+  function renderChart() {
+    var svg = $('dChart');
+    if (!svg) return;
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var X0 = 58, X1 = 572, Y0 = 40, Y1 = 196;
+
+    if (!rows.length) {
+      svg.appendChild(el('text', {
+        x: 320, y: 150, 'text-anchor': 'middle',
+        style: 'font:15px system-ui;fill:#6b6b74'
+      }, 'Записей пока нет'));
+      svg.appendChild(el('text', {
+        x: 320, y: 172, 'text-anchor': 'middle',
+        style: FS + ';fill:#6b6b74'
+      }, 'сохраните первую запись — график построится по ней'));
+      return;
+    }
+
+    var n = rows.length;
+    var xs = rows.map(function (r, i) {
+      return n === 1 ? (X0 + X1) / 2 : X0 + i * (X1 - X0) / (n - 1);
+    });
+    var hrVals = rows.filter(function (r) { return r.hr !== null; }).map(function (r) { return r.hr; });
+    var msVals = rows.filter(function (r) { return r.mass !== null; }).map(function (r) { return r.mass; });
+    var hrD = hrVals.length ? niceDomain(hrVals, 3, 6) : null;
+    var msD = msVals.length ? niceDomain(msVals, 0.5, 1) : null;
+    function yOf(v, d) { return Y1 - (v - d[0]) / (d[1] - d[0]) * (Y1 - Y0); }
+
+    /* сетка и оси */
+    var g = el('g', { stroke: '#e3e9ee', 'stroke-width': '1' });
+    for (var k = 0; k <= 4; k++) {
+      var y = Y0 + k * (Y1 - Y0) / 4;
+      g.appendChild(el('line', { x1: X0, y1: y, x2: X1, y2: y }));
+    }
+    svg.appendChild(g);
+    svg.appendChild(el('line', { x1: X0, y1: Y0 - 6, x2: X0, y2: Y1, stroke: '#16161a', 'stroke-width': '1.4' }));
+    svg.appendChild(el('line', { x1: X1, y1: Y0 - 6, x2: X1, y2: Y1, stroke: '#16161a', 'stroke-width': '1.4' }));
+    svg.appendChild(el('line', { x1: X0, y1: Y1, x2: X1, y2: Y1, stroke: '#16161a', 'stroke-width': '1.4' }));
+
+    for (var k2 = 0; k2 <= 4; k2++) {
+      var yy = Y1 - k2 * (Y1 - Y0) / 4;
+      if (hrD) {
+        svg.appendChild(el('text', {
+          x: X0 - 6, y: yy + 4, 'text-anchor': 'end', style: FS + ';fill:#155e75'
+        }, f(hrD[0] + k2 * (hrD[1] - hrD[0]) / 4, 0)));
+      }
+      if (msD) {
+        svg.appendChild(el('text', {
+          x: X1 + 6, y: yy + 4, style: FS + ';fill:#b3382e'
+        }, f(msD[0] + k2 * (msD[1] - msD[0]) / 4, 1)));
+      }
+    }
+    /* легенда: она же подписи осей — цвет подписи совпадает с цветом делений */
+    svg.appendChild(el('line', { x1: X0, y1: 18, x2: X0 + 22, y2: 18, stroke: '#155e75', 'stroke-width': '2' }));
+    svg.appendChild(el('circle', { cx: X0 + 11, cy: 18, r: 3, fill: '#155e75' }));
+    svg.appendChild(el('text', { x: X0 + 28, y: 22, style: FS + ';fill:#155e75' }, 'ЧСС покоя, уд/мин — левая ось'));
+    svg.appendChild(el('line', { x1: 380, y1: 18, x2: 402, y2: 18, stroke: '#b3382e', 'stroke-width': '2' }));
+    svg.appendChild(el('circle', { cx: 391, cy: 18, r: 3, fill: '#b3382e' }));
+    svg.appendChild(el('text', { x: 408, y: 22, style: FS + ';fill:#b3382e' }, 'масса тела, кг — правая ось'));
+
+    /* кривые */
+    function series(key, dom, color) {
+      if (!dom) return;
+      /* единственная запись: обе точки попали бы в центр поля — разводим их */
+      var dx = n === 1 ? (key === 'hr' ? -7 : 7) : 0;
+      var d = '', open = false;
+      rows.forEach(function (r, i) {
+        var v = r[key];
+        if (v === null) { open = false; return; }
+        var y = yOf(v, dom);
+        d += (open ? ' L ' : ' M ') + (xs[i] + dx).toFixed(1) + ' ' + y.toFixed(1);
+        open = true;
+      });
+      if (d) svg.appendChild(el('path', { d: d.trim(), fill: 'none', stroke: color, 'stroke-width': '2' }));
+      rows.forEach(function (r, i) {
+        var v = r[key];
+        if (v === null) return;
+        var c = el('circle', { cx: (xs[i] + dx).toFixed(1), cy: yOf(v, dom).toFixed(1), r: 3.2, fill: color });
+        c.appendChild(el('title', null, ru(r.date) + ': ' + (key === 'hr' ? v + ' уд/мин' : f(v, 1) + ' кг')));
+        svg.appendChild(c);
+      });
+    }
+    series('hr', hrD, '#155e75');
+    series('mass', msD, '#b3382e');
+
+    /* подписи дат: каждая N-я, чтобы не налезали */
+    var maxLabels = Math.max(2, Math.floor((X1 - X0) / 44) + 1);
+    var step = Math.max(1, Math.ceil(n / maxLabels));
+    rows.forEach(function (r, i) {
+      if (i % step !== 0 && i !== n - 1) return;
+      if (i !== n - 1 && n > 1 && (n - 1 - i) < step / 2) return;
+      svg.appendChild(el('text', {
+        x: xs[i].toFixed(1), y: 218, 'text-anchor': 'middle', style: FS + ';fill:#6b6b74'
+      }, shortRu(r.date)));
+    });
+
+    /* полоса самочувствия */
+    svg.appendChild(el('text', { x: X0, y: 238, style: FS + ';fill:#6b6b74' }, 'самочувствие по дням'));
+    var spacing = n > 1 ? (X1 - X0) / (n - 1) : (X1 - X0);
+    var cw = Math.max(4, Math.min(26, spacing * 0.8));
+    rows.forEach(function (r, i) {
+      svg.appendChild(el('rect', {
+        x: (xs[i] - cw / 2).toFixed(1), y: 244, width: cw.toFixed(1), height: 18,
+        rx: 3, fill: MOOD[r.well] || '#6b6b74', opacity: '.85'
+      })).appendChild(el('title', null, ru(r.date) + ': ' + r.well));
+    });
+
+    var lg = [['хорошее', MOOD['хорошее'], X0], ['удовлетворительное', MOOD['удовлетворительное'], X0 + 90],
+      ['плохое', MOOD['плохое'], X0 + 240]];
+    lg.forEach(function (it) {
+      svg.appendChild(el('rect', { x: it[2], y: 274, width: 11, height: 11, rx: 2, fill: it[1], opacity: '.85' }));
+      svg.appendChild(el('text', { x: it[2] + 16, y: 284, style: FS + ';fill:#6b6b74' }, it[0]));
+    });
+  }
+
+  function renderAll() {
+    rows.sort(byDate);
+    renderTable();
+    renderSummary();
+    renderChart();
+  }
+
+  /* ===== действия ===== */
+  function collect() {
+    var date = ($('dDate') && $('dDate').value) || '';
+    if (!isoOk(date)) { msg('Укажите дату записи.'); return null; }
+    return {
+      date: date,
+      hr: num($('dHr').value),
+      mass: num($('dMass').value),
+      well: $('dWell').value,
+      sleepH: num($('dSleepH').value),
+      sleepQ: $('dSleepQ').value,
+      app: $('dApp').value,
+      load: $('dLoad').value,
+      note: String($('dNote').value || '').slice(0, 200)
+    };
+  }
+
+  function put(rec) {
+    var i = rows.findIndex(function (r) { return r.date === rec.date; });
+    if (i >= 0) rows[i] = rec; else rows.push(rec);
+  }
+
+  /* ===== CSV ===== */
+  var HEAD = ['дата', 'ЧСС покоя', 'масса, кг', 'самочувствие', 'сон, ч', 'качество сна', 'аппетит', 'нагрузка', 'заметка'];
+  function q(s) {
+    s = String(s === null || s === undefined ? '' : s);
+    return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function exportCsv() {
+    if (!rows.length) { msg('Дневник пуст — выгружать нечего.'); return; }
+    var lines = [HEAD.join(';')];
+    rows.forEach(function (r) {
+      lines.push([ru(r.date), r.hr === null ? '' : r.hr, f(r.mass, 1), r.well,
+        f(r.sleepH, 1), r.sleepQ, r.app, r.load, r.note].map(q).join(';'));
+    });
+    var blob = new Blob(['﻿' + lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'dnevnik-samokontrolya.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    msg('Выгружено записей: ' + rows.length + '.');
+  }
+  function parseCsv(text, sep) {
+    var out = [], row = [], cur = '', inQ = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (inQ) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { cur += '"'; i++; } else inQ = false;
+        } else cur += c;
+      } else if (c === '"') inQ = true;
+      else if (c === sep) { row.push(cur); cur = ''; }
+      else if (c === '\n') { row.push(cur); out.push(row); row = []; cur = ''; }
+      else if (c === '\r') { /* пропуск */ }
+      else cur += c;
+    }
+    if (cur !== '' || row.length) { row.push(cur); out.push(row); }
+    return out;
+  }
+  function importCsv(text) {
+    text = text.replace(/^﻿/, '');
+    var first = text.split(/\r?\n/)[0] || '';
+    var sep = (first.split(';').length >= first.split(',').length) ? ';' : ',';
+    var table = parseCsv(text, sep);
+    var added = 0;
+    table.forEach(function (c) {
+      if (!c.length) return;
+      var date = toISO(c[0]);
+      if (!date) return;
+      var well = String(c[3] || '').trim();
+      put({
+        date: date,
+        hr: num(c[1]),
+        mass: num(c[2]),
+        well: MOOD[well] ? well : 'удовлетворительное',
+        sleepH: num(c[4]),
+        sleepQ: String(c[5] || '').trim(),
+        app: String(c[6] || '').trim(),
+        load: String(c[7] || '').trim(),
+        note: String(c[8] || '').trim().slice(0, 200)
+      });
+      added++;
+    });
+    if (!added) { msg('В файле не нашлось строк с датой в первом столбце.'); return; }
+    save(rows);
+    renderAll();
+    msg('Загружено записей: ' + added + '.');
+  }
+
+  /* ===== события ===== */
+  var dt = $('dDate');
+  if (dt && !dt.value) dt.value = todayISO();
+
+  var saveBtn = $('dSave');
+  if (saveBtn) saveBtn.addEventListener('click', function () {
+    var rec = collect();
+    if (!rec) return;
+    put(rec);
+    rows.sort(byDate);
+    if (save(rows)) msg('Запись за ' + ru(rec.date) + ' сохранена.');
+    renderAll();
+  });
+
+  var body = $('dBody');
+  if (body) body.addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('button[data-date]') : null;
+    if (!b) return;
+    var d = b.getAttribute('data-date');
+    rows = rows.filter(function (r) { return r.date !== d; });
+    save(rows);
+    renderAll();
+    msg('Запись за ' + ru(d) + ' удалена.');
+  });
+
+  var clr = $('dClear');
+  if (clr) clr.addEventListener('click', function () {
+    if (!rows.length) { msg('Дневник и так пуст.'); return; }
+    if (!window.confirm('Удалить все записи дневника? Действие необратимо.')) return;
+    rows = [];
+    save(rows);
+    renderAll();
+    msg('Дневник очищен.');
+  });
+
+  var csv = $('dCsv');
+  if (csv) csv.addEventListener('click', exportCsv);
+
+  var file = $('dFile');
+  if (file) file.addEventListener('change', function () {
+    var fl = file.files && file.files[0];
+    if (!fl) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try { importCsv(String(rd.result || '')); }
+      catch (e) { msg('Не удалось разобрать файл.'); }
+      file.value = '';
+    };
+    rd.onerror = function () { msg('Не удалось прочитать файл.'); file.value = ''; };
+    rd.readAsText(fl, 'utf-8');
+  });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
