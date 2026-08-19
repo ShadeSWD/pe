@@ -527,8 +527,9 @@
         + ` stroke="${C.water}" stroke-width="1.6"/>`;
       s += `<rect x="0" y="150" width="164" height="24" fill="#dfe7ec" stroke="${C.ink}" stroke-width="1.4"/>`;
       s += text(104, 168, 'бортик', C.ink);
-      s += line(232, 176, 232, 340, C.gray, 0.9, ' stroke-dasharray="4 6"');
-      s += text(236, 340, 'вход в воду «в одну точку»', C.gray);
+      /* створ входа стоит там, где кисть действительно пересекает воду */
+      s += line(428, 176, 428, 330, C.gray, 0.9, ' stroke-dasharray="4 6"');
+      s += text(300, 344, 'вход в воду «в одну точку»', C.gray);
       s += text(8, 354, 'угол входа около 30–40°; голова между руками, кисти сложены', C.gray);
       return s;
     },
