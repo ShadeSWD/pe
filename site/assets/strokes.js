@@ -522,7 +522,7 @@
       { to: 1.00, name: 'Скольжение и выход', note: 'Скольжение под водой в вытянутом положении, затем работа ногами и первый гребок. Всплывать нужно плавно, не задирая голову.' },
     ],
     bg() {
-      let s = S.water(640, 360, 174);
+      let s = S.water(640, 360, 174, { labelX: 452 });
       s += '<rect x="0" y="174" width="150" height="186" fill="rgba(21,94,117,.14)"'
         + ` stroke="${C.water}" stroke-width="1.6"/>`;
       s += `<rect x="0" y="150" width="164" height="24" fill="#dfe7ec" stroke="${C.ink}" stroke-width="1.4"/>`;
