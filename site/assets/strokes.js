@@ -156,7 +156,7 @@
 
   /* ---------- кроль на груди, вид сверху: руки и дыхание ---------- */
 
-  const TOP = { shX: 372, hipX: 306, cy: 130, headX: 416, r: 15, halfSh: 22, halfHip: 14 };
+  const TOP = { shX: 372, hipX: 306, cy: 130, headX: 410, r: 15, halfSh: 22, halfHip: 14 };
   const ARMT = { a1: 44, a2: 38, hand: 11 };
 
   const CRAWL_TOP_R = [
@@ -219,16 +219,20 @@
 
       let s = '';
       /* корпус */
-      s += path(`M ${TOP.shX + 26} ${TOP.cy - halfSh} Q ${TOP.shX - 20} ${TOP.cy - halfSh - 3}
-                 ${TOP.hipX} ${TOP.cy - halfHip} L 196 ${TOP.cy - 7}
-                 L 196 ${TOP.cy + 7} L ${TOP.hipX} ${TOP.cy + halfHip}
-                 Q ${TOP.shX - 20} ${TOP.cy + halfSh + 3} ${TOP.shX + 26} ${TOP.cy + halfSh} Z`,
+      /* силуэт с закруглённым плечевым поясом: прямая линия поперёк плеч
+         читалась как стенка, от которой «оторвана» голова */
+      s += path(`M ${TOP.shX + 30} ${TOP.cy}
+                 Q ${TOP.shX + 28} ${TOP.cy - halfSh} ${TOP.shX - 4} ${TOP.cy - halfSh}
+                 Q ${TOP.hipX + 24} ${TOP.cy - halfHip - 3} ${TOP.hipX} ${TOP.cy - halfHip}
+                 L 200 ${TOP.cy - 6} L 200 ${TOP.cy + 6} L ${TOP.hipX} ${TOP.cy + halfHip}
+                 Q ${TOP.hipX + 24} ${TOP.cy + halfHip + 3} ${TOP.shX - 4} ${TOP.cy + halfSh}
+                 Q ${TOP.shX + 28} ${TOP.cy + halfSh} ${TOP.shX + 30} ${TOP.cy} Z`,
         C.ink, 1.4, C.skin);
       /* ноги: попеременные удары сверху почти не видны, показываем лёгкий след */
       for (const sgn of [-1, 1]) {
         const off = sgn * 5 * Math.sin(2 * Math.PI * (u * 3 + (sgn > 0 ? 0 : 0.5)));
-        s += line(TOP.hipX, TOP.cy + sgn * (halfHip - 3), 210, TOP.cy + sgn * 8 + off, C.ink, 6);
-        s += line(210, TOP.cy + sgn * 8 + off, 178, TOP.cy + sgn * 9 + off * 1.4, C.ink, 5);
+        s += line(TOP.hipX - 6, TOP.cy + sgn * (halfHip - 3), 212, TOP.cy + sgn * 8 + off, C.ink, 6);
+        s += line(212, TOP.cy + sgn * 8 + off, 180, TOP.cy + sgn * 9 + off * 1.4, C.ink, 5);
       }
       /* дальняя (левая) рука */
       s += drawArmTop({ x: TOP.shX, y: TOP.cy - halfSh + 4 }, S.armAt(TOP_L, u + 0.5), C.far, 6);

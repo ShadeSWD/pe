@@ -132,16 +132,23 @@
         <text x="60" y="42" style="font:11px system-ui;fill:#6b6b74">направление движения</text>
         <g stroke="#16161a" stroke-linecap="round" opacity=".85" fill="none">
           <line x1="150" y1="96" x2="255" y2="104" stroke-width="5"/>
+          <line x1="256" y1="104" x2="250" y2="82" stroke-width="6"/>
           <line x1="255" y1="104" x2="375" y2="132" stroke-width="11"/>
           <line x1="375" y1="132" x2="450" y2="150" stroke-width="7"/>
           <line x1="450" y1="150" x2="505" y2="163" stroke-width="5"/>
           <line x1="505" y1="163" x2="527" y2="172" stroke-width="4"/>
         </g>
-        <circle cx="250" cy="74" r="14" fill="#16161a" opacity=".85"/>
-        <text x="250" y="52" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">голова</text>
-        <text x="142" y="92" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">кисти</text>
+        <circle cx="248" cy="68" r="14" fill="#16161a" opacity=".85"/>
+        <g stroke="#6b6b74" stroke-width="1" fill="none">
+          <line x1="248" y1="50" x2="248" y2="54"/>
+          <line x1="356" y1="148" x2="372" y2="136"/>
+          <line x1="528" y1="182" x2="518" y2="172"/>
+          <line x1="146" y1="90" x2="152" y2="94"/>
+        </g>
+        <text x="248" y="46" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">голова</text>
+        <text x="142" y="88" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">кисти</text>
         <text x="352" y="152" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">таз</text>
-        <text x="534" y="186" style="font:11px system-ui;fill:#6b6b74">стопы</text>
+        <text x="532" y="192" style="font:11px system-ui;fill:#6b6b74">стопы</text>
       </svg>
       <div class="caption">Пловец скользит слева направо после толчка от стенки;
       линия — поверхность воды.</div>
@@ -166,18 +173,18 @@
         <text x="470" y="40" style="font:11px system-ui;fill:#6b6b74">направление движения</text>
         <g stroke="#16161a" stroke-linecap="round" opacity=".85" fill="none">
           <line x1="500" y1="82" x2="340" y2="90" stroke-width="11"/>
-          <line x1="340" y1="90" x2="245" y2="96" stroke-width="8"/>
-          <line x1="245" y1="96" x2="230" y2="165" stroke-width="6"/>
-          <line x1="230" y1="165" x2="198" y2="152" stroke-width="5"/>
+          <line x1="340" y1="90" x2="300" y2="150" stroke-width="8"/>
+          <line x1="300" y1="150" x2="240" y2="120" stroke-width="6"/>
+          <line x1="240" y1="120" x2="218" y2="152" stroke-width="5"/>
         </g>
         <circle cx="516" cy="82" r="13" fill="#16161a" opacity=".85"/>
-        <path d="M275 94 A 30 30 0 0 1 239 125" fill="none" stroke="#6b6b74" stroke-width="1.2"/>
-        <text x="340" y="74" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">таз</text>
-        <text x="295" y="78" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">бедро</text>
-        <text x="232" y="84" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">колено</text>
-        <text x="222" y="132" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">голень</text>
-        <text x="192" y="178" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">стопа</text>
-        <text x="280" y="128" style="font:11px system-ui;fill:#6b6b74">угол в колене</text>
+        <path d="M314 128 A 26 26 0 0 0 277 138" fill="none" stroke="#6b6b74" stroke-width="1.2"/>
+        <text x="348" y="80" style="font:11px system-ui;fill:#6b6b74">таз</text>
+        <text x="352" y="126" style="font:11px system-ui;fill:#6b6b74">бедро ушло вниз</text>
+        <text x="300" y="174" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">колено</text>
+        <text x="256" y="100" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">голень</text>
+        <text x="206" y="170" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">стопа взята «на себя»</text>
+        <text x="322" y="152" style="font:11px system-ui;fill:#6b6b74">угол в колене</text>
       </svg>
       <div class="caption">Момент удара: пловец движется вправо, показаны бедро,
       голень и стопа одной ноги.</div>
@@ -198,18 +205,20 @@
     <div class="item" data-count="1">
       <h3>2.3. Брасс: согласование рук и ног</h3>
       <svg viewBox="0 0 640 240" class="geo-board" style="max-width:640px">
-        <g stroke="#16161a" stroke-linecap="round" opacity=".85" fill="none">
+        <g stroke="#16161a" stroke-linecap="round" stroke-linejoin="round" opacity=".85" fill="none">
           <line x1="415" y1="88" x2="300" y2="96" stroke-width="11"/>
-          <polyline points="408,92 385,114 412,122" stroke-width="5"/>
-          <line x1="300" y1="96" x2="262" y2="118" stroke-width="7"/>
-          <line x1="262" y1="118" x2="215" y2="136" stroke-width="5"/>
+          <polyline points="410,90 378,104 402,122" stroke-width="5"/>
+          <line x1="300" y1="96" x2="272" y2="126" stroke-width="7"/>
+          <line x1="272" y1="126" x2="218" y2="112" stroke-width="5"/>
+          <line x1="218" y1="112" x2="200" y2="106" stroke-width="4"/>
         </g>
         <circle cx="430" cy="86" r="13" fill="#16161a" opacity=".85"/>
-        <line x1="392" y1="120" x2="372" y2="130" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
-        <line x1="212" y1="140" x2="184" y2="148" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
+        <line x1="400" y1="128" x2="384" y2="140" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
+        <line x1="196" y1="102" x2="166" y2="94" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
         <line x1="424" y1="118" x2="446" y2="114" stroke="#6b6b74" stroke-width="1"/>
+        <line x1="226" y1="146" x2="216" y2="122" stroke="#6b6b74" stroke-width="1"/>
         <text x="450" y="116" style="font:11px system-ui;fill:#6b6b74">руки: гребок</text>
-        <text x="200" y="120" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">ноги: толчок</text>
+        <text x="150" y="152" style="font:11px system-ui;fill:#6b6b74">ноги: толчок</text>
         <text x="256" y="162" style="font:11px system-ui;fill:#6b6b74">один и тот же момент</text>
         <g fill="#6b6b74" opacity=".07">
           <rect x="150" y="172" width="450" height="16"/>
@@ -346,8 +355,9 @@
       <div class="note tip"><b>Пример.</b>
         <div>25 м за 20,0 с при \(k=1{,}10\): \(v_{25}\) = <span class="sub">25 / 20,0</span> = <b>1,25 м/с</b>.</div>
         <div>\(t_{100}\) = <span class="sub">4 · 20,0 · 1,10</span> = <b>88,0 с</b> = <b>1:28,0</b>.</div>
-        <div>\(v_{100}\) = <span class="sub">100 / 88,0</span> = <b>1,14 м/с</b>, то есть на
-        10 % ниже скорости на первом отрезке — как и заложено коэффициентом.</div>
+        <div>\(v_{100}\) = <span class="sub">100 / 88,0</span> = <b>1,14 м/с</b> — примерно
+        на 9 % ниже скорости на первом отрезке: время выросло на 10 %, а скорость обратно
+        пропорциональна времени, поэтому падает она немного меньше.</div>
       </div>
     </div>
 
