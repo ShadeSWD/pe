@@ -495,12 +495,16 @@
     const sh = { x: o.x + 64 * ax, y: o.y + 64 * ay };
     const head = { x: sh.x + 30 * ax, y: sh.y + 30 * ay };
     let s = S.body(sh, hip, head, 14, { stroke: color });
-    /* руки: от плеча под углом armA к оси */
+    /* руки: от плеча под углом armA к оси. Точку крепления сдвигаем на
+       9 единиц по нормали к оси — иначе при вытянутых вперёд руках линия
+       руки проходит ровно через голову и читается как перечёркнутая. */
+    const nx = -ay, ny = ax;
+    const sx0 = sh.x + nx * 9, sy0 = sh.y + ny * 9;
     const aA = (o.ang + (o.armA || 0)) * Math.PI / 180;
     const eA = aA + (o.armF || 0) * Math.PI / 180;
-    const ex = sh.x + 52 * Math.cos(aA), ey = sh.y + 52 * Math.sin(aA);
+    const ex = sx0 + 52 * Math.cos(aA), ey = sy0 + 52 * Math.sin(aA);
     const hx = ex + 45 * Math.cos(eA), hy = ey + 45 * Math.sin(eA);
-    s += line(sh.x, sh.y, ex, ey, color, 6) + line(ex, ey, hx, hy, color, 6)
+    s += line(sx0, sy0, ex, ey, color, 6) + line(ex, ey, hx, hy, color, 6)
       + line(hx, hy, hx + 13 * Math.cos(eA), hy + 13 * Math.sin(eA), color, 5)
       + circle(ex, ey, 2.8, color);
     /* ноги: от таза назад с поворотом на hipA и сгибанием kneeF */
@@ -543,11 +547,11 @@
     draw(u) {
       const keys = [
         { u: 0.00, x: 300, y: 160, ang: 0, armA: -6, armF: 0, hipA: 0, kneeF: 10 },
-        { u: 0.20, x: 452, y: 160, ang: 0, armA: -10, armF: 0, hipA: 0, kneeF: 12 },
-        { u: 0.32, x: 486, y: 176, ang: -34, armA: -30, armF: 60, hipA: 30, kneeF: 92 },
-        { u: 0.46, x: 498, y: 186, ang: -150, armA: 26, armF: 54, hipA: -34, kneeF: 118 },
-        { u: 0.60, x: 502, y: 180, ang: -182, armA: 6, armF: 8, hipA: 16, kneeF: 104 },
-        { u: 0.74, x: 470, y: 176, ang: -178, armA: 2, armF: 2, hipA: 4, kneeF: 34 },
+        { u: 0.20, x: 444, y: 160, ang: 0, armA: -10, armF: 0, hipA: 0, kneeF: 12 },
+        { u: 0.32, x: 464, y: 176, ang: -34, armA: 34, armF: 24, hipA: 30, kneeF: 92 },
+        { u: 0.46, x: 476, y: 186, ang: -150, armA: -24, armF: 32, hipA: -34, kneeF: 118 },
+        { u: 0.60, x: 480, y: 180, ang: -182, armA: 6, armF: 8, hipA: 16, kneeF: 104 },
+        { u: 0.74, x: 452, y: 176, ang: -178, armA: 2, armF: 2, hipA: 4, kneeF: 34 },
         { u: 0.86, x: 380, y: 172, ang: -178, armA: 0, armF: 0, hipA: 0, kneeF: 8 },
         { u: 0.96, x: 250, y: 168, ang: -178, armA: 0, armF: 0, hipA: 0, kneeF: 14 },
       ];

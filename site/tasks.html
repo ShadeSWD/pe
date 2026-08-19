@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задания по технике плавания — Физическая культура и спорт</title>
+<meta name="description" content="Двенадцать заданий с автопроверкой по технике плавания: порядок фаз гребка в кроле и брассе, последовательность разучивания навыков, поиск ошибки по схеме, подбор упражнения под учебную задачу, а также живые расчёты темпа на 100 метров и «шага» пловца.">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* разделитель между заданиями внутри одного блока-карточки */
+.task > h2 { margin: 4px 0 10px; font-size: 21px; }
+.task .item { border-top: 1px dashed var(--line); margin-top: 18px; padding-top: 12px; }
+.task .item:first-of-type { border-top: 0; margin-top: 6px; padding-top: 0; }
+.task .item > h3 { margin-top: 0; }
+</style>
+</head>
+<body>
+<script src="assets/shell.js"></script>
+<script src="assets/site.js" data-root="./" data-page="tasks"></script>
+<main class="wrap">
+  <h1>Задания по технике</h1>
+  <p class="lead">Двенадцать заданий с автопроверкой и два расчёта к разделу
+  «Плавание с нуля». Задания собраны вокруг того, что труднее всего усваивается
+  по описанию: порядка фаз в цикле движения, узнавания ошибки по внешнему виду
+  положения и выбора упражнения под конкретную учебную задачу.</p>
+
+  <div class="short"><b>Коротко.</b>
+    <ul>
+      <li>В заданиях на порядок пункты переставляют кнопками «вверх» и «вниз»,
+      после чего нажимают «Проверить»: пункты на своих местах подсвечиваются
+      зелёным, остальные — красным.</li>
+      <li>В заданиях с вариантами ответ засчитывается сразу при выборе;
+      пояснение появляется и при верном, и при неверном варианте.</li>
+      <li>Расчёты пересчитываются на лету и в счёт выполненных заданий не идут:
+      проверять в них нечего, там важна сама цепочка «формула — подстановка —
+      результат». Подробные калькуляторы курса — на странице
+      <a href="calc">расчёты</a>.</li>
+      <li>Теорию по этим заданиям разбирает <a href="swim">раздел плавания</a>,
+      теоретический курс проверяет <a href="test">тест по лекциям</a>.</li>
+      <li>Ничего не отправляется на сервер: результат существует только в памяти
+      браузера и стирается кнопкой «Начать заново».</li>
+    </ul>
+  </div>
+
+  <div class="note"><b>Что эти задания проверяют.</b> Они проверяют понимание
+  техники: последовательность движений, связь ошибки и её причины, назначение
+  упражнений. Умение плавать так не проверяется и не ставится: движение
+  осваивается в воде, под наблюдением преподавателя, который видит то, чего не
+  видно на схеме. Верно решённое задание означает, что понятно, зачем выполняется
+  упражнение, а не что оно выполняется правильно.</div>
+
+  <div class="task">
+    <h2>1. Порядок фаз</h2>
+    <p class="q">В каждом задании пункты перемешаны. Переставьте их кнопками
+    «↑» и «↓» в правильном порядке и нажмите «Проверить».</p>
+
+    <div class="item" data-count="1">
+      <h3>1.1. Фазы гребка руки в кроле на груди</h3>
+      <div class="q">Полный цикл работы одной руки — от входа в воду до
+      следующего входа.</div>
+      <ul class="order" id="ord1">
+        <li data-ok="3"><span class="grip">1</span><span class="txt">отталкивание: кисть ускоряется и уходит назад вдоль тела до бедра</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="1"><span class="grip">2</span><span class="txt">вход руки в воду и захват: кисть входит впереди плеча и опирается о воду</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="5"><span class="grip">3</span><span class="txt">пронос над водой: расслабленная рука выносится вперёд</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="2"><span class="grip">4</span><span class="txt">подтягивание: локоть удерживается выше кисти, кисть идёт под тело</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="4"><span class="grip">5</span><span class="txt">выход руки из воды: локоть выходит первым, кисть — последней</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+      </ul>
+      <div class="stepper-bar"><button class="btn primary" type="button" data-check="1">Проверить</button></div>
+      <div class="verdict"></div>
+      <div class="why" hidden>Гребок делится на подтягивание и отталкивание не
+      формально: до линии плеча кисть работает на удержание опоры, после неё —
+      на ускорение. Локоть выше кисти в подтягивании и выход локтем вперёд —
+      два признака, по которым гребок узнают со стороны.</div>
+    </div>
+
+    <div class="item" data-count="1">
+      <h3>1.2. Цикл движений в брассе</h3>
+      <div class="q">Один полный цикл: от вытянутого положения до возвращения
+      в него же.</div>
+      <ul class="order" id="ord2">
+        <li data-ok="2"><span class="grip">1</span><span class="txt">гребок руками: кисти расходятся в стороны и идут под грудь</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="4"><span class="grip">2</span><span class="txt">выведение рук вперёд одновременно с толчком ногами</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="1"><span class="grip">3</span><span class="txt">скольжение в вытянутом положении, руки впереди</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="5"><span class="grip">4</span><span class="txt">возвращение в скольжение: пауза перед следующим циклом</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="3"><span class="grip">5</span><span class="txt">вдох в конце гребка, когда плечи поднялись выше всего</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+      </ul>
+      <div class="stepper-bar"><button class="btn primary" type="button" data-check="1">Проверить</button></div>
+      <div class="verdict"></div>
+      <div class="why" hidden>Смысл порядка в том, что руки и ноги в брассе
+      работают по очереди: пока руки гребут, ноги вытянуты, и наоборот. Скольжение
+      завершает цикл и занимает в нём заметное время — именно оно даёт брассу
+      экономичность, поэтому «выпадение» скольжения считается основной ошибкой.</div>
+    </div>
+
+    <div class="item" data-count="1">
+      <h3>1.3. Последовательность разучивания навыков</h3>
+      <div class="q">Порядок, в котором навыки осваивает начинающий: каждый
+      следующий опирается на предыдущий.</div>
+      <ul class="order" id="ord3">
+        <li data-ok="3"><span class="grip">1</span><span class="txt">работа ног с доской: руки выключены, продвижение только за счёт ног</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="6"><span class="grip">2</span><span class="txt">первые 25 метров: отрезок целиком, без остановки</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="1"><span class="grip">3</span><span class="txt">выдох в воду: длинный, непрерывный, с погружённым лицом</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="5"><span class="grip">4</span><span class="txt">согласование движений с дыханием</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="2"><span class="grip">5</span><span class="txt">скольжение после толчка от стенки в обтекаемом положении</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+        <li data-ok="4"><span class="grip">6</span><span class="txt">гребок одной рукой с доской</span><span class="mv"><button type="button" data-mv="up" aria-label="переместить выше">↑</button><button type="button" data-mv="down" aria-label="переместить ниже">↓</button></span></li>
+      </ul>
+      <div class="stepper-bar"><button class="btn primary" type="button" data-check="1">Проверить</button></div>
+      <div class="verdict"></div>
+      <div class="why" hidden>Порядок не произволен: пока не налажен выдох в воду,
+      любое движение выполняется на задержке дыхания; пока нет скольжения, работа
+      ног уходит на удержание тела, а не на продвижение; пока не поставлен гребок
+      одной рукой, согласовывать с дыханием нечего. Отрезок в 25 метров — это
+      проверка всей цепочки, а не отдельное упражнение
+      (<a href="s-first25">первые 25 метров</a>).</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <h2>2. Найти ошибку по схеме</h2>
+    <p class="q">На каждой схеме показано положение пловца сбоку. Подписи на схемах
+    нейтральные: они называют части тела и направление движения, но не указывают
+    на ошибку. Выберите вариант, который называет главную ошибку именно этого
+    положения.</p>
+
+    <div class="item" data-count="1">
+      <h3>2.1. Скольжение после толчка от стенки</h3>
+      <svg viewBox="0 0 640 200" class="geo-board" style="max-width:640px">
+        <rect x="40" y="78" width="560" height="112" fill="#155e75" opacity=".05"/>
+        <line x1="40" y1="78" x2="600" y2="78" stroke="#155e75" stroke-width="1.5"/>
+        <text x="596" y="70" text-anchor="end" style="font:11px system-ui;fill:#155e75">поверхность воды</text>
+        <line x1="60" y1="50" x2="160" y2="50" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
+        <text x="60" y="42" style="font:11px system-ui;fill:#6b6b74">направление движения</text>
+        <g stroke="#16161a" stroke-linecap="round" opacity=".85" fill="none">
+          <line x1="150" y1="96" x2="255" y2="104" stroke-width="5"/>
+          <line x1="255" y1="104" x2="375" y2="132" stroke-width="11"/>
+          <line x1="375" y1="132" x2="450" y2="150" stroke-width="7"/>
+          <line x1="450" y1="150" x2="505" y2="163" stroke-width="5"/>
+          <line x1="505" y1="163" x2="527" y2="172" stroke-width="4"/>
+        </g>
+        <circle cx="250" cy="74" r="14" fill="#16161a" opacity=".85"/>
+        <text x="250" y="52" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">голова</text>
+        <text x="142" y="92" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">кисти</text>
+        <text x="352" y="152" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">таз</text>
+        <text x="534" y="186" style="font:11px system-ui;fill:#6b6b74">стопы</text>
+      </svg>
+      <div class="caption">Пловец скользит слева направо после толчка от стенки;
+      линия — поверхность воды.</div>
+      <div class="choices">
+        <label><input type="radio" name="e1" value="a" data-ok="1"
+          data-why="Голова поднята, шея и плечи вышли из воды — и по закону рычага таз и ноги ушли вниз. Тело перестало быть вытянутой линией, площадь, которой оно встречает воду, выросла, и скольжение гаснет за метр-полтора. Именно поэтому в скольжении смотрят в дно, а затылок держат на уровне спины."><span>Голова поднята: тело перестало быть вытянутым, таз и ноги опустились, сопротивление выросло</span></label>
+        <label><input type="radio" name="e1" value="b"
+          data-why="Положение кистей на скольжение влияет, но здесь оно не главное: даже идеально сложенные кисти не спасут положение, в котором таз ушёл вниз. Сначала выравнивают линию тела, потом занимаются кистями."><span>Кисти лежат слишком далеко друг от друга</span></label>
+        <label><input type="radio" name="e1" value="c"
+          data-why="Наоборот: на схеме стопы вытянуты, и это правильно. Стопа «на себя» в скольжении и в кроле работает как тормоз — это ошибка, но не эта схема."><span>Стопы вытянуты, их следовало держать «на себя»</span></label>
+        <label><input type="radio" name="e1" value="d"
+          data-why="Глубина скольжения на схеме обычная, у самой поверхности. Скольжение чуть глубже даже выгоднее — там меньше волновое сопротивление; проблема на схеме не в глубине, а в форме тела."><span>Пловец скользит слишком близко к поверхности воды</span></label>
+      </div>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+
+    <div class="item" data-count="1">
+      <h3>2.2. Удар ногами в кроле, вид сбоку</h3>
+      <svg viewBox="0 0 640 200" class="geo-board" style="max-width:640px">
+        <line x1="470" y1="48" x2="570" y2="48" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
+        <text x="470" y="40" style="font:11px system-ui;fill:#6b6b74">направление движения</text>
+        <g stroke="#16161a" stroke-linecap="round" opacity=".85" fill="none">
+          <line x1="500" y1="82" x2="340" y2="90" stroke-width="11"/>
+          <line x1="340" y1="90" x2="245" y2="96" stroke-width="8"/>
+          <line x1="245" y1="96" x2="230" y2="165" stroke-width="6"/>
+          <line x1="230" y1="165" x2="198" y2="152" stroke-width="5"/>
+        </g>
+        <circle cx="516" cy="82" r="13" fill="#16161a" opacity=".85"/>
+        <path d="M275 94 A 30 30 0 0 1 239 125" fill="none" stroke="#6b6b74" stroke-width="1.2"/>
+        <text x="340" y="74" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">таз</text>
+        <text x="295" y="78" text-anchor="middle" style="font:11px system-ui;fill:#6b6b74">бедро</text>
+        <text x="232" y="84" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">колено</text>
+        <text x="222" y="132" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">голень</text>
+        <text x="192" y="178" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">стопа</text>
+        <text x="280" y="128" style="font:11px system-ui;fill:#6b6b74">угол в колене</text>
+      </svg>
+      <div class="caption">Момент удара: пловец движется вправо, показаны бедро,
+      голень и стопа одной ноги.</div>
+      <div class="choices">
+        <label><input type="radio" name="e2" value="a"
+          data-why="Ширина разведения ног на схеме не показана — это вид сбоку. Развести ноги в стороны действительно нельзя, но по этой схеме такой вывод сделать невозможно."><span>Ноги слишком широко разведены в стороны</span></label>
+        <label><input type="radio" name="e2" value="b" data-ok="1"
+          data-why="Удар идёт «от колена»: бедро почти неподвижно, голень бьёт сама по себе, а стопа взята «на себя». Такая нога не отталкивает воду назад, а гребёт вниз и работает как тормоз — со стороны это и называют «велосипедом». Удар начинается от таза, колено сгибается только на движении вниз и незначительно, стопа остаётся оттянутой."><span>Удар идёт от колена, а не от таза: бедро почти неподвижно, стопа взята «на себя»</span></label>
+        <label><input type="radio" name="e2" value="c"
+          data-why="Наоборот: на схеме носок взят «на себя», а оттянутая стопа — это правильное положение. Оттянутая стопа продолжает линию голени и позволяет отталкивать воду назад."><span>Носок оттянут, стопу следовало держать «на себя»</span></label>
+        <label><input type="radio" name="e2" value="d"
+          data-why="Амплитуда здесь как раз избыточна: голень уходит далеко вниз. Слишком мелкий удар — тоже ошибка, но противоположная той, что показана на схеме."><span>Амплитуда удара слишком мала, ноги почти не двигаются</span></label>
+      </div>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+
+    <div class="item" data-count="1">
+      <h3>2.3. Брасс: согласование рук и ног</h3>
+      <svg viewBox="0 0 640 240" class="geo-board" style="max-width:640px">
+        <g stroke="#16161a" stroke-linecap="round" opacity=".85" fill="none">
+          <line x1="415" y1="88" x2="300" y2="96" stroke-width="11"/>
+          <polyline points="408,92 385,114 412,122" stroke-width="5"/>
+          <line x1="300" y1="96" x2="262" y2="118" stroke-width="7"/>
+          <line x1="262" y1="118" x2="215" y2="136" stroke-width="5"/>
+        </g>
+        <circle cx="430" cy="86" r="13" fill="#16161a" opacity=".85"/>
+        <line x1="392" y1="120" x2="372" y2="130" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
+        <line x1="212" y1="140" x2="184" y2="148" stroke="#16161a" stroke-width="1.2" marker-end="url(#arrE)"/>
+        <line x1="424" y1="118" x2="446" y2="114" stroke="#6b6b74" stroke-width="1"/>
+        <text x="450" y="116" style="font:11px system-ui;fill:#6b6b74">руки: гребок</text>
+        <text x="200" y="120" text-anchor="end" style="font:11px system-ui;fill:#6b6b74">ноги: толчок</text>
+        <text x="256" y="162" style="font:11px system-ui;fill:#6b6b74">один и тот же момент</text>
+        <g fill="#6b6b74" opacity=".07">
+          <rect x="150" y="172" width="450" height="16"/>
+          <rect x="150" y="202" width="450" height="16"/>
+        </g>
+        <g fill="#155e75" opacity=".28">
+          <rect x="250" y="172" width="120" height="16"/>
+          <rect x="250" y="202" width="120" height="16"/>
+        </g>
+        <g style="font:11px system-ui;fill:#6b6b74" text-anchor="end">
+          <text x="142" y="184">руки</text>
+          <text x="142" y="214">ноги</text>
+        </g>
+        <g style="font:11px system-ui;fill:#16161a" text-anchor="middle">
+          <text x="310" y="184">гребок</text>
+          <text x="310" y="214">толчок</text>
+        </g>
+        <g stroke="#b3382e" stroke-width="1.2" stroke-dasharray="5 4">
+          <line x1="250" y1="166" x2="250" y2="226"/>
+          <line x1="370" y1="166" x2="370" y2="226"/>
+        </g>
+      </svg>
+      <div class="caption">Вверху — положение пловца в брассе (движение вправо),
+      внизу — две дорожки времени: когда работают руки и когда работают ноги.</div>
+      <div class="choices">
+        <label><input type="radio" name="e3" value="a"
+          data-why="Глубина подтягивания ног действительно влияет на сопротивление, но на схеме ноги показаны в толчке, а не в подтягивании. Эта ошибка встречается, но не она изображена."><span>Ноги подтягиваются слишком близко к животу</span></label>
+        <label><input type="radio" name="e3" value="b"
+          data-why="Гребок до бёдер — ошибка брасса, но на схеме кисти показаны под грудью, то есть там, где им и положено быть. Дорожки времени внизу указывают на другое."><span>Руки гребут слишком далеко назад, до бёдер</span></label>
+        <label><input type="radio" name="e3" value="c"
+          data-why="Момент вдоха на схеме не показан вовсе: дыхание здесь не изображено, поэтому судить о нём нельзя. Ошибка видна на дорожках времени."><span>Вдох сделан не в тот момент цикла</span></label>
+        <label><input type="radio" name="e3" value="d" data-ok="1"
+          data-why="Гребок руками и толчок ногами приходятся на один и тот же промежуток времени — это видно по совпадению прямоугольников на дорожках. В брассе руки и ноги работают по очереди: пока гребут руки, ноги вытянуты, а толчок ногами выполняется, когда руки уже выводятся вперёд. При одновременной работе фаза скольжения исчезает, движения гасят друг друга и цикл теряет экономичность."><span>Гребок руками и толчок ногами приходятся на один момент: фаза скольжения исчезла</span></label>
+      </div>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+  </div>
+
+  <div class="task">
+    <h2>3. Подобрать упражнение под задачу</h2>
+    <p class="q">Шесть коротких ситуаций. К каждой выберите из списка упражнение,
+    которое решает именно эту задачу. Список одинаков во всех шести; каждое
+    упражнение используется ровно один раз.</p>
+
+    <div class="item" data-count="1" data-ok="e1"
+         data-need="наладить непрерывный выдох в воду и перестать плыть на задержке дыхания"
+         data-why="Пловец плывёт на задержке дыхания: воздух не выдыхается, углекислый газ накапливается, и на пятнадцатом метре организм требует вдоха, которого не подготовили. Серии выдохов у бортика ставят главное: выдох в воду длинный и непрерывный, а вдох — короткий и в конце.">
+      <div class="q"><b>3.1.</b> Воздуха не хватает уже на пятнадцатом метре: пловец
+      делает вдох, плывёт, пока хватает, и выдыхает в последний момент перед
+      следующим вдохом.</div>
+      <select data-ex="1"></select>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+
+    <div class="item" data-count="1" data-ok="e3"
+         data-need="научиться держать обтекаемое положение тела после толчка"
+         data-why="Скольжение показывает, насколько тело обтекаемо: пока оно не поставлено, любые гребки уходят на преодоление собственного сопротивления. Задержка на 5–7 секунд после толчка от стенки заставляет удерживать вытянутую линию тела и даёт объективную обратную связь — пройденное расстояние.">
+      <div class="q"><b>3.2.</b> После толчка от стенки пловец проходит меньше двух
+      метров и сразу начинает грести: скольжения фактически нет.</div>
+      <select data-ex="2"></select>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+
+    <div class="item" data-count="1" data-ok="e2"
+         data-need="выключить руки и увидеть, что даёт работа ног сама по себе"
+         data-why="Пока работают и руки, и ноги, невозможно понять, что даёт каждая часть. Доска выключает руки: если с доской продвижения нет, значит, ноги не работают на продвижение, и заниматься нужно ими — амплитудой от таза и оттянутой стопой.">
+      <div class="q"><b>3.3.</b> Пловец не понимает, работают ли у него ноги:
+      с руками он как-то плывёт, но что именно дают ноги — неясно.</div>
+      <select data-ex="3"></select>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+
+    <div class="item" data-count="1" data-ok="e4"
+         data-need="разобрать движение одной руки отдельно, не отвлекаясь на согласование"
+         data-why="Когда одна рука работает хуже другой, согласование двух рук только маскирует проблему. Гребок одной рукой с доской оставляет в задаче ровно одну руку: вход впереди плеча, локоть выше кисти, ускорение до бедра — и всё это под контролем, без гонки за темпом.">
+      <div class="q"><b>3.4.</b> Левая рука делает гребок нормально, а правая после
+      входа в воду проваливается вниз, и опоры о воду почти не получается.</div>
+      <select data-ex="4"></select>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+
+    <div class="item" data-count="1" data-ok="e5"
+         data-need="восстановить дыхание, не прекращая движения и держа лицо над водой"
+         data-why="На спине лицо всё время над водой, дыхание свободно, а нагрузка остаётся низкой: это единственный способ продолжать занятие и одновременно восстанавливаться. Тот же приём — основной способ самопомощи при усталости на воде (см. главу «Безопасность на воде»).">
+      <div class="q"><b>3.5.</b> На середине отрезка дыхание сбилось и появилось
+      напряжение, но заканчивать занятие рано.</div>
+      <select data-ex="5"></select>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+
+    <div class="item" data-count="1" data-ok="e6"
+         data-need="увеличить подвижность голеностопа и почувствовать оттянутую стопу"
+         data-why="Жёсткий голеностоп и стопа «на себя» — не ошибка внимания, а недостаток подвижности: заставить себя оттянуть стопу усилием не получается. Ласты увеличивают площадь стопы, растягивают голеностоп в рабочем положении и дают почувствовать, как выглядит удар, который действительно продвигает.">
+      <div class="q"><b>3.6.</b> Стопа жёсткая и всё время взята «на себя»: удар
+      ногами выполняется, но продвижения не даёт.</div>
+      <select data-ex="6"></select>
+      <div class="verdict"></div>
+      <div class="why" hidden></div>
+    </div>
+  </div>
+
+  <div class="task">
+    <h2>4. Расчёты по плаванию</h2>
+    <p class="q">Два расчёта, которыми удобно планировать отрезки. Оба
+    пересчитываются при изменении любого поля и показывают формулу, подстановку
+    и результат. В счёт выполненных заданий они не идут.</p>
+
+    <div class="item">
+      <h3>4.1. Время на 100 метров по результату на 25 метрах</h3>
+      <p>Прямой пересчёт «умножить на четыре» завышает результат: на длинной
+      дистанции скорость всегда ниже, чем на первом отрезке, — сказываются
+      утомление и потеря техники. Поэтому в расчёт вводят коэффициент снижения
+      скорости \(k\): при \(k=1\) считается идеальный случай, когда скорость
+      удерживается до конца. Величина \(k\) индивидуальна, в лекциях курса она
+      не приводится и определяется по собственным результатам: проплыв 25 и 100
+      метров, отношение среднего времени отрезка к времени на 25 м и даёт \(k\).</p>
+      <div class="controls">
+        <label>время на 25 м, с
+          <input type="number" id="t25" value="20" min="10" max="120" step="0.1"></label>
+        <label>коэффициент \(k\)
+          <input type="number" id="kf" value="1.10" min="1" max="1.6" step="0.01"></label>
+      </div>
+      <div class="calc-out">
+        <div>\(v_{25} = 25/t_{25}\) = <span class="sub" id="v25s">—</span> = <b id="v25r">—</b></div>
+        <div>\(t_{100} = 4\,t_{25}\,k\) = <span class="sub" id="t100s">—</span> = <b id="t100r">—</b></div>
+        <div>\(v_{100} = 100/t_{100}\) = <span class="sub" id="v100s">—</span> = <b id="v100r">—</b></div>
+      </div>
+      <div class="note tip"><b>Пример.</b>
+        <div>25 м за 20,0 с при \(k=1{,}10\): \(v_{25}\) = <span class="sub">25 / 20,0</span> = <b>1,25 м/с</b>.</div>
+        <div>\(t_{100}\) = <span class="sub">4 · 20,0 · 1,10</span> = <b>88,0 с</b> = <b>1:28,0</b>.</div>
+        <div>\(v_{100}\) = <span class="sub">100 / 88,0</span> = <b>1,14 м/с</b>, то есть на
+        10 % ниже скорости на первом отрезке — как и заложено коэффициентом.</div>
+      </div>
+    </div>
+
+    <div class="item">
+      <h3>4.2. «Шаг» пловца и число циклов на 25 метров</h3>
+      <p>«Шагом» пловца называют расстояние, пройденное за один полный цикл работы
+      рук: в кроле цикл — это два гребка (по одному каждой рукой), в брассе — один
+      гребок обеими. Шаг считают, поделив длину проплытого отрезка на число
+      выполненных циклов. Показатель полезен тем, что растёт от улучшения техники,
+      а не от усилий: при одинаковой скорости меньшее число циклов означает
+      бо́льшую опору о воду и меньшие потери. Обратная задача — сколько циклов
+      уйдёт на отрезок 25 метров при заданном шаге — позволяет ставить на
+      тренировке счётную задачу.</p>
+      <div class="controls">
+        <label>длина отрезка \(S\), м
+          <input type="number" id="cS" value="50" min="10" max="400" step="5"></label>
+        <label>число циклов \(N\)
+          <input type="number" id="cN" value="45" min="1" max="400" step="1"></label>
+        <label>заданный шаг \(L_0\), м
+          <input type="number" id="cL" value="1.20" min="0.3" max="3" step="0.05"></label>
+      </div>
+      <div class="calc-out">
+        <div>\(L = S/N\) = <span class="sub" id="lSub">—</span> = <b id="lRes">—</b></div>
+        <div>\(N_{25} = 25/L\) = <span class="sub" id="n1Sub">—</span> = <b id="n1Res">—</b></div>
+        <div>\(N_{25} = 25/L_0\) = <span class="sub" id="n2Sub">—</span> = <b id="n2Res">—</b></div>
+      </div>
+      <div class="note tip"><b>Пример.</b>
+        <div>50 м за 45 циклов: \(L\) = <span class="sub">50 / 45</span> = <b>1,11 м</b> за цикл.</div>
+        <div>\(N_{25}\) = <span class="sub">25 / 1,111</span> = <b>22,5</b> — то есть
+        <b>23 цикла</b>, поскольку неполный цикл всё равно приходится выполнять.</div>
+        <div>При заданном шаге 1,20 м: \(N_{25}\) = <span class="sub">25 / 1,20</span> =
+        <b>20,8</b> — <b>21 цикл</b> на отрезок.</div>
+      </div>
+      <p class="small">Расчёт числа циклов ведётся по неокруглённому шагу, поэтому
+      результат может немного отличаться от расчёта по округлённому до сотых
+      значению. Подробные калькуляторы темпа и скорости — на странице
+      <a href="calc">расчёты</a>.</p>
+    </div>
+  </div>
+
+  <div class="task">
+    <h2>5. Итог</h2>
+    <div class="controls">
+      <span class="readout">Выполнено <b id="n-done">0</b> из <b id="n-all">12</b></span>
+      <button class="btn" type="button" id="btn-reset">Начать заново</button>
+    </div>
+    <div class="caption">Засчитываются только верно решённые задания разделов 1–3;
+    расчёты раздела 4 в счёт не входят. Результат нигде не сохраняется и никуда
+    не отправляется: он существует только в памяти браузера и стирается кнопкой
+    «Начать заново», которая заодно возвращает все списки в исходный перемешанный
+    порядок.</div>
+  </div>
+
+  <p class="small">Источник: раздел «Плавание с нуля» учебного сайта; связь
+  с теоретическим курсом — лекция № 7 «Особенности занятий избранным видом
+  спорта», тема 8, раздел 8.2 (воздействие плавания на организм), и лекция № 1,
+  таблица 1.2, где плавание 100 м без учёта времени входит в контрольные
+  упражнения специального учебного отделения, кафедра физического воспитания
+  СПбГМТУ.</p>
+</main>
+<script>
+'use strict';
+(function () {
+  var doc = document;
+  function all(sel, root) {
+    return Array.prototype.slice.call((root || doc).querySelectorAll(sel));
+  }
+  function $(id) { return doc.getElementById(id); }
+
+  var items = all('.item[data-count]');
+  var elDone = $('n-done');
+  var elAll = $('n-all');
+  elAll.textContent = String(items.length);
+
+  function update() {
+    var n = 0;
+    items.forEach(function (it) { if (it.dataset.state === 'ok') n++; });
+    elDone.textContent = String(n);
+  }
+
+  function clearItem(it) {
+    it.dataset.state = '';
+    var v = it.querySelector('.verdict');
+    if (v) v.textContent = '';
+    var w = it.querySelector('.why');
+    if (w) w.hidden = true;
+  }
+
+  /* ---------- 1. порядок фаз ---------- */
+  function renumber(ul) {
+    all('li', ul).forEach(function (li, i) {
+      li.querySelector('.grip').textContent = String(i + 1);
+    });
+  }
+  function unmark(ul) {
+    all('li', ul).forEach(function (li) { li.classList.remove('ok', 'bad'); });
+  }
+  var lists = all('ul.order');
+  var initial = {};
+  lists.forEach(function (ul) {
+    initial[ul.id] = all('li', ul);
+    renumber(ul);
+    ul.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var btn = t && t.closest ? t.closest('button[data-mv]') : null;
+      if (!btn) return;
+      var li = btn.closest('li');
+      if (!li) return;
+      if (btn.dataset.mv === 'up') {
+        var prev = li.previousElementSibling;
+        if (prev) ul.insertBefore(li, prev);
+      } else {
+        var next = li.nextElementSibling;
+        if (next) ul.insertBefore(next, li);
+      }
+      unmark(ul);
+      renumber(ul);
+      var item = ul.closest('.item');
+      if (item) { clearItem(item); update(); }
+    });
+  });
+
+  all('button[data-check]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.item');
+      if (!item) return;
+      var ul = item.querySelector('ul.order');
+      var lis = all('li', ul);
+      var good = 0;
+      lis.forEach(function (li, i) {
+        var ok = li.dataset.ok === String(i + 1);
+        li.classList.remove('ok', 'bad');
+        li.classList.add(ok ? 'ok' : 'bad');
+        if (ok) good++;
+      });
+      var v = item.querySelector('.verdict');
+      var w = item.querySelector('.why');
+      if (good === lis.length) {
+        item.dataset.state = 'ok';
+        v.innerHTML = '<span class="badge ok">Верно</span> порядок восстановлен полностью.';
+        if (w) w.hidden = false;
+      } else {
+        item.dataset.state = 'bad';
+        v.innerHTML = '<span class="badge bad">Пока нет</span> на своих местах '
+          + good + ' из ' + lis.length + '; красным отмечены пункты, стоящие не на своём месте.';
+        if (w) w.hidden = true;
+      }
+      update();
+    });
+  });
+
+  /* ---------- 2. варианты ответа ---------- */
+  function paintChoices(item) {
+    var labels = all('.choices label', item);
+    labels.forEach(function (l) { l.classList.remove('ok', 'bad'); });
+    var chosen = item.querySelector('.choices input:checked');
+    var v = item.querySelector('.verdict');
+    var w = item.querySelector('.why');
+    if (!chosen) { clearItem(item); return; }
+    var good = chosen.dataset.ok === '1';
+    item.dataset.state = good ? 'ok' : 'bad';
+    var lab = chosen.closest('label');
+    if (lab) lab.classList.add(good ? 'ok' : 'bad');
+    v.innerHTML = good
+      ? '<span class="badge ok">Верно</span>'
+      : '<span class="badge bad">Неверно</span>';
+    w.textContent = chosen.dataset.why || '';
+    w.hidden = false;
+  }
+
+  /* ---------- 3. подбор упражнения ---------- */
+  var EX = [
+    { v: 'e1', t: 'выдохи в воду сериями у бортика', p: 'непрерывный выдох в воду' },
+    { v: 'e2', t: 'плавание с доской и работой ног', p: 'работу ног при выключенных руках' },
+    { v: 'e3', t: 'скольжение с задержкой на 5–7 секунд', p: 'обтекаемое положение тела' },
+    { v: 'e4', t: 'гребок одной рукой с доской', p: 'форму гребка отдельной руки' },
+    { v: 'e5', t: 'плавание на спине для восстановления дыхания', p: 'свободное дыхание при низкой нагрузке' },
+    { v: 'e6', t: 'плавание в ластах для голеностопа', p: 'подвижность голеностопа и оттянутую стопу' }
+  ];
+  var EXMAP = {};
+  EX.forEach(function (e) { EXMAP[e.v] = e; });
+
+  all('select[data-ex]').forEach(function (sel) {
+    var o0 = doc.createElement('option');
+    o0.value = '';
+    o0.textContent = '— выберите упражнение —';
+    sel.appendChild(o0);
+    EX.forEach(function (e) {
+      var o = doc.createElement('option');
+      o.value = e.v;
+      o.textContent = e.t;
+      sel.appendChild(o);
+    });
+    sel.value = '';
+  });
+
+  function paintSelect(item) {
+    var sel = item.querySelector('select[data-ex]');
+    var v = item.querySelector('.verdict');
+    var w = item.querySelector('.why');
+    if (!sel.value) { clearItem(item); return; }
+    var good = sel.value === item.dataset.ok;
+    item.dataset.state = good ? 'ok' : 'bad';
+    v.innerHTML = good
+      ? '<span class="badge ok">Верно</span>'
+      : '<span class="badge bad">Неверно</span>';
+    if (good) {
+      w.textContent = item.dataset.why || '';
+    } else {
+      var e = EXMAP[sel.value];
+      w.textContent = 'Упражнение «' + e.t + '» ставит ' + e.p
+        + '. В этой ситуации нужно другое: ' + item.dataset.need + '.';
+    }
+    w.hidden = false;
+  }
+
+  var main = doc.querySelector('main');
+  main.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    var item = t.closest('.item');
+    if (!item) return;
+    if (t.type === 'radio') { paintChoices(item); update(); }
+    else if (t.tagName === 'SELECT' && t.hasAttribute('data-ex')) { paintSelect(item); update(); }
+  });
+
+  /* ---------- 4. расчёты ---------- */
+  var DASH = '—';
+  function num(id) {
+    var el = $(id);
+    var x = parseFloat(String(el.value).replace(',', '.'));
+    return isFinite(x) ? x : NaN;
+  }
+  function f(x, d) { return x.toFixed(d).replace('.', ','); }
+  function set(id, s) { $(id).textContent = s; }
+  function plural(n, one, few, many) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return many;
+    if (b > 1 && b < 5) return few;
+    if (b === 1) return one;
+    return many;
+  }
+  function cycles(n) { return n + ' ' + plural(n, 'цикл', 'цикла', 'циклов'); }
+  function mmss(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec - m * 60;
+    return m + ':' + (s < 10 ? '0' : '') + f(s, 1);
+  }
+
+  function calcPace() {
+    var t25 = num('t25'), k = num('kf');
+    if (!(t25 > 0) || !(k > 0)) {
+      ['v25s', 'v25r', 't100s', 't100r', 'v100s', 'v100r'].forEach(function (id) { set(id, DASH); });
+      return;
+    }
+    var v25 = 25 / t25;
+    var t100 = 4 * t25 * k;
+    var v100 = 100 / t100;
+    set('v25s', '25 / ' + f(t25, 1));
+    set('v25r', f(v25, 2) + ' м/с');
+    set('t100s', '4 · ' + f(t25, 1) + ' · ' + f(k, 2));
+    set('t100r', f(t100, 1) + ' с = ' + mmss(t100));
+    set('v100s', '100 / ' + f(t100, 1));
+    set('v100r', f(v100, 2) + ' м/с');
+  }
+
+  function calcStep() {
+    var S = num('cS'), N = num('cN'), L0 = num('cL');
+    if (S > 0 && N > 0) {
+      var L = S / N;
+      var n25 = 25 / L;
+      set('lSub', f(S, 0) + ' / ' + f(N, 0));
+      set('lRes', f(L, 2) + ' м за цикл');
+      set('n1Sub', '25 / ' + f(L, 3));
+      set('n1Res', f(n25, 1) + ' — это ' + cycles(Math.ceil(n25 - 1e-9)));
+    } else {
+      ['lSub', 'lRes', 'n1Sub', 'n1Res'].forEach(function (id) { set(id, DASH); });
+    }
+    if (L0 > 0) {
+      var n0 = 25 / L0;
+      set('n2Sub', '25 / ' + f(L0, 2));
+      set('n2Res', f(n0, 1) + ' — это ' + cycles(Math.ceil(n0 - 1e-9)));
+    } else {
+      set('n2Sub', DASH);
+      set('n2Res', DASH);
+    }
+  }
+
+  function calcAll() { calcPace(); calcStep(); }
+  main.addEventListener('input', function (ev) {
+    if (ev.target && ev.target.type === 'number') calcAll();
+  });
+
+  /* ---------- 5. итог ---------- */
+  $('btn-reset').addEventListener('click', function () {
+    lists.forEach(function (ul) {
+      initial[ul.id].forEach(function (li) { ul.appendChild(li); });
+      unmark(ul);
+      renumber(ul);
+    });
+    all('.choices input[type=radio]').forEach(function (i) { i.checked = false; });
+    all('.choices label').forEach(function (l) { l.classList.remove('ok', 'bad'); });
+    all('select[data-ex]').forEach(function (s) { s.value = ''; });
+    items.forEach(clearItem);
+    update();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  items.forEach(clearItem);
+  update();
+  calcAll();
+})();
+</script>
+</body>
+</html>
