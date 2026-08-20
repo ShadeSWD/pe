@@ -157,7 +157,12 @@
         const dx = ADV * (i / (b.pts.length - 1));
         abs += `${i === 0 ? 'M' : 'L'} ${M.num(b.pts[i].x + dx)} ${M.num(b.pts[i].y)}`;
       }
-      return '<rect x="0" y="0" width="640" height="178" fill="rgba(21,94,117,.035)"/>'
+      /* У каждой панели своя поверхность воды. Раньше воды здесь не было
+         вовсе: обе фигуры висели на белом фоне, хотя весь смысл доски — что
+         кисть часть цикла идёт ПОД водой, а часть проносится НАД ней, и
+         пунктир этих двух участков ничем не подпирался. */
+      return S.water(640, 178, A.ws, { labelX: 470 })
+        + S.water(640, 368, B.ws, { labelX: 470 })
         + line(0, 178, 640, 178, C.gray, 1)
         + text(10, 20, 'Система отсчёта тела: тело неподвижно, кисть уходит назад', C.ink)
         + text(10, 212, 'Система отсчёта воды: кисть почти на месте, вперёд едет тело', C.ink)
@@ -209,10 +214,13 @@
       { to: 1.00, name: 'Лицо в воду, выдох', note: 'Голова возвращается раньше, чем рука войдёт в воду. Дальше — непрерывный выдох до следующего вдоха.' },
     ],
     bg() {
-      return '<rect x="0" y="0" width="640" height="300" fill="rgba(21,94,117,.04)"/>'
+      /* Вода заливкой и рябью: на виде сверху линии поверхности не бывает, а
+         без воды панель читается как вид сбоку — фигура висит на белом. */
+      return S.waterTop(640, 300, { label: false })
         + line(0, 158, 640, 158, C.gray, 0.9, ' stroke-dasharray="6 6"')
         + text(528, 152, 'ось движения', C.gray)
         + S.moveArrow(516, 22, 'движение')
+        + text(8, 20, 'вид сверху: смотрим на пловца с бортика, сквозь воду', C.water)
         + text(8, 292, 'вид сверху — та же поза, что на схеме сбоку; тёмным — правая рука, светлым — левая', C.gray);
     },
     draw(u) {
@@ -222,17 +230,25 @@
       else if (u >= 0.58 && u < 0.70) turn = 88;
       else if (u >= 0.70 && u < 0.82) turn = 88 * (1 - (u - 0.70) / 0.12);
       const inhale = u >= 0.56 && u < 0.72;
-      const pose = crawlPose(u, { headTurn: turn });
-      let s = PE.figure(pose, {
-        H, view: 'top', x: 258, y: 158, near: 'R', where: 'crawl-top',
-      });
-      const r = PE.figure.solve(pose, {
-        H, view: 'top', x: 258, y: 158, where: 'crawl-top / точка лица',
-      });
+      /* Минус: вдох делается в сторону ПРАВОГО плеча — того, которое в этой
+         фазе идёт вверх вместе с проносом правой руки (crawlRoll в это время
+         отрицателен, то есть правый бок поднимается). С плюсом голова
+         поворачивалась в противоположную сторону, к плечу, уходящему под
+         воду, — и подпись «вдох к правому плечу» противоречила рисунку. */
+      const pose = crawlPose(u, { headTurn: -turn });
+      /* голова — с макушки: профиль с глазом в этой проекции превращал вид
+         сверху в вид сбоку (см. PE.swim.headTop) */
+      const o = {
+        H, view: 'top', x: 258, y: 158, near: 'R', face: false,
+        where: 'crawl-top',
+      };
+      const r = PE.figure.solve(pose, o);
+      let s = PE.figure.render(r, o);
+      s += S.headTop(r, { color: inhale ? C.green : C.ink });
       if (inhale) {
-        s += line(r.pts.face.x + 52, r.pts.face.y + 44, r.pts.face.x + 12,
-          r.pts.face.y + 10, C.green, 2, ' marker-end="url(#arrG)"');
-        s += text(r.pts.face.x + 56, r.pts.face.y + 48, 'вдох', C.green);
+        s += line(r.pts.face.x + 54, r.pts.face.y + 40, r.pts.face.x + 14,
+          r.pts.face.y + 8, C.green, 2, ' marker-end="url(#arrG)"');
+        s += text(r.pts.face.x + 58, r.pts.face.y + 44, 'вдох к правому плечу', C.green);
       } else {
         for (let i = 0; i < 5; i++) {
           const t = (u * 3 + i * 0.2) % 1;
@@ -242,8 +258,12 @@
         s += text(430, 272, 'выдох в воду', C.water);
       }
       const roll = pose.roll;
-      s += text(20, 24, 'крен корпуса: ' + Math.round(Math.abs(roll)) + '°'
-        + (roll > 6 ? ' вправо' : roll < -6 ? ' влево' : ''), C.water);
+      /* Сторону крена называем плечом, а не «вправо/влево»: слово «крен
+         вправо» значит поворот в правую сторону, то есть ВВЕРХ идёт левое
+         плечо, и на схеме это каждый раз читается наоборот. */
+      s += text(8, 38, 'крен корпуса ' + Math.round(Math.abs(roll)) + '°'
+        + (roll > 6 ? ': левое плечо вверх'
+          : roll < -6 ? ': правое плечо вверх' : ''), C.water);
       return s;
     },
     caption: 'Кроль сверху: попеременная работа рук, крен корпуса и поворот головы на вдох. Это та же поза, что и на виде сбоку, — другая проекция. Проверьте по кадрам, что вдох приходится на конец гребка той же руки, а не на её пронос.',
@@ -414,17 +434,21 @@
         dR += `${i === 0 ? 'M' : 'L'} ${M.num(r.pts.wristR.x)} ${M.num(r.pts.wristR.y)}`;
         dL += `${i === 0 ? 'M' : 'L'} ${M.num(r.pts.wristL.x)} ${M.num(r.pts.wristL.y)}`;
       }
-      return '<rect x="0" y="0" width="640" height="330" fill="rgba(21,94,117,.04)"/>'
+      return S.waterTop(640, 330, { label: false })
         + line(0, 166, 640, 166, C.gray, 0.9, ' stroke-dasharray="6 6"')
         + path(dR, C.water, 1.3, 'none', ' stroke-dasharray="5 4"')
         + path(dL, C.water, 1.3, 'none', ' stroke-dasharray="5 4"')
-        + text(180, 24, 'след кистей: «сердечко»', C.water)
+        + text(8, 20, 'вид сверху: смотрим на пловца с бортика, сквозь воду', C.water)
+        + text(180, 40, 'след кистей: «сердечко»', C.water)
         + S.moveArrow(516, 316, 'движение');
     },
     draw(u) {
-      return PE.figure(breastPose(u), {
-        H, view: 'top', x: 266, y: 166, near: false, where: 'breast-top',
-      });
+      const o = {
+        H, view: 'top', x: 266, y: 166, near: false, face: false,
+        where: 'breast-top',
+      };
+      const r = PE.figure.solve(breastPose(u), o);
+      return PE.figure.render(r, o) + S.headTop(r);
     },
     caption: 'Брасс сверху. Пунктир — путь кистей, посчитанный из той же позы, что и руки: они расходятся наружу, сводятся под грудью и выстреливают вперёд. Руки не заходят за линию плеч.',
   });

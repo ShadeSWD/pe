@@ -58,6 +58,62 @@
         : text(num(o.labelX, 8), ws - 7, 'поверхность воды', C.water));
   }
 
+  /* Вода на виде СВЕРХУ. Линии поверхности здесь быть не может: мы смотрим
+     на поверхность сверху, и она занимает всю панель. Поэтому воду
+     приходится показывать заливкой и рябью — без них фигура висит на белом
+     фоне, панель читается как вид сбоку в воздухе, и первый же вопрос
+     смотрящего «а где вода и где поверхность?» остаётся без ответа. */
+  function waterTop(w, h, opt) {
+    const o = opt || {};
+    const y0 = num(o.y0, 0), y1 = num(o.y1, h);
+    const x0 = num(o.x0, 0), x1 = num(o.x1, w);
+    let s = `<rect x="${M.num(x0)}" y="${M.num(y0)}" width="${M.num(x1 - x0)}"`
+      + ` height="${M.num(y1 - y0)}" fill="rgba(21,94,117,.10)"/>`;
+    /* рябь: тот же профиль волны, что и у линии поверхности на видах сбоку,
+       но разбросанный по всей панели — сверху волны видны именно так */
+    for (let r = 0; ; r++) {
+      const y = y0 + 20 + r * 32;
+      if (y > y1 - 8) break;
+      /* штрихи ряда не должны выходить за края панели: длина штриха 44 */
+      for (let x = x0 + 3 + (r % 2) * 44; x + 47 <= x1; x += 88) {
+        s += path(`M ${M.num(x)} ${M.num(y)} q 11 -4 22 0 t 22 0`,
+          'rgba(21,94,117,.24)', 1.3);
+      }
+    }
+    return s + (o.label === false ? ''
+      : text(num(o.labelX, 10), y0 + 20, o.label
+        || 'вид сверху: смотрим на пловца с бортика, сквозь воду', C.water));
+  }
+
+  /* Голова на виде СВЕРХУ: макушка, а не профиль. Модель умеет рисовать
+     профиль с носом, подбородком и глазом, и в проекции сверху он вылезает,
+     как только тело кренится: панель, подписанная «вид сверху», начинает
+     читаться как вид сбоку. Поэтому на видах сверху голова рисуется кругом
+     (face: false), а направление лица показано отдельной меткой — носом,
+     посчитанным по тем же точкам модели (head и face). Пока лицо в воде,
+     видна только макушка; на вдохе нос выходит к плечу. */
+  function headTop(res, opt) {
+    const o = opt || {};
+    const p = res.pts, R = res.P.headR * res.opts.H, hc = p.head;
+    const ex = p.face.x - hc.x, ey = p.face.y - hc.y;
+    const el = Math.hypot(ex, ey);
+    const ink = o.color || C.ink;
+    /* кружок темени рисуется, пока макушка и правда обращена к нам: когда
+       голова довёрнута к плечу, мы смотрим уже не на темя, а на висок */
+    let s = el < R * 0.55
+      ? circle(hc.x, hc.y, R * 0.40, 'none', 'rgba(22,22,26,.30)', 1.1) : '';
+    if (el > R * 0.20) {
+      const ux = ex / el, uy = ey / el;
+      const k = Math.min(1, el / (R * 0.96));
+      const bx = hc.x + ux * R * 0.78, by = hc.y + uy * R * 0.78;
+      const px = -uy, py = ux, wq = R * 0.32, tip = R * (0.92 + 0.36 * k);
+      s += path(`M ${M.num(bx + px * wq)} ${M.num(by + py * wq)}`
+        + ` L ${M.num(hc.x + ux * tip)} ${M.num(hc.y + uy * tip)}`
+        + ` L ${M.num(bx - px * wq)} ${M.num(by - py * wq)} Z`, ink, 1.2, ink);
+    }
+    return s;
+  }
+
   /* Стрелка «направление движения». */
   const moveArrow = (x, y, s) => line(x, y, x + 54, y, C.green, 2, ' marker-end="url(#arrG)"')
     + text(x + 60, y + 4, s || 'движение', C.green);
@@ -163,7 +219,7 @@
   const ARMS_SIDE = { shoulder: 12, shoulderPlane: 24, elbow: 6, elbowDir: 0 };
 
   PE.swim = {
-    water, moveArrow, drift, fig, angAt, joints, bodyOf,
+    water, waterTop, headTop, moveArrow, drift, fig, angAt, joints, bodyOf,
     kickCrawl, kickBike, kickBreast, ARMS_FRONT, ARMS_SIDE, H,
   };
 
@@ -205,7 +261,7 @@
           + line(60, 316, 580, 316, C.gray, 1.2, ' stroke-dasharray="6 5"')
           + text(60, 332, 'дно бассейна (мелкая часть, глубина по грудь)', C.gray);
       } else {
-        s += '<rect x="0" y="0" width="640" height="340" fill="rgba(21,94,117,.06)"/>';
+        s += waterTop(640, 340, { label: false });
       }
       s += drift(u, ws, 10, 120, 250, 0.2);
       if (u < 0.45) {
@@ -268,31 +324,94 @@
   /* ================= 2. Дыхание: выдох в воду и вдох ================= */
 
   /* Голова крупным планом — единственное место раздела, где рисуется не
-     фигура, а лицо: круг, глаза и рот. Это крупный план органа дыхания, и
-     модели скелета здесь описывать нечего. Само тело в этой анимации
-     построено моделью и показано сверху. */
-  function faceCloseup(cx, cy, turn, inhale, u, ws) {
-    const k = Math.sin(turn * Math.PI / 180);
-    const hy = cy - k * 8;
-    let s = circle(cx, hy, 30, C.skin, C.ink, 1.6);
-    s += path(`M ${cx - 30} ${hy} A 30 30 0 0 1 ${cx + 30} ${hy}`, C.ink, 1.6,
-      'rgba(21,94,117,.08)');
-    s += circle(cx - 11 + k * 16, hy - 6, 2.6, C.ink);
-    s += circle(cx + 5 + k * 16, hy - 6, 2.6, C.ink);
-    const mx = cx - 3 + k * 20, my = hy + 12;
-    s += `<ellipse cx="${M.num(mx)}" cy="${M.num(my)}" rx="${M.num(3 + k * 4)}"`
-      + ` ry="${M.num(2 + (inhale ? 3 : 1))}" fill="#b3382e" opacity=".75"/>`;
+     фигура, а лицо: круг, глаза, ухо и рот. Это крупный план органа дыхания,
+     и модели скелета здесь описывать нечего. Само тело в этой анимации
+     построено моделью и показано сверху.
+     Панель — вид СПЕРЕДИ, навстречу пловцу. В такой проекции продольная ось
+     тела уходит от нас, и поворот головы на вдох — это поворот в плоскости
+     рисунка: лицо проворачивается вместе с корпусом, глаза встают друг над
+     другом, нижнее ухо остаётся в воде. Голова при этом НЕ поднимается —
+     раньше она приподнималась на 8 единиц, ровно вопреки подписи.
+     Рот выходит на воздух не потому, что голова всплыла, а потому, что рядом
+     с головой набегающая вода образует углубление — «воздушную ямку». Она и
+     нарисована: поверхность рядом с головой проваливается. */
+  const FACE_CX = 150, FACE_CY = 410, FACE_R = 36, FACE_WS = 380;
+
+  /* Контур воды в крупном плане: ровная поверхность слева, провал рядом с
+     головой справа — та самая воздушная ямка. */
+  function pocketPath() {
+    const cx = FACE_CX, R = FACE_R, w = FACE_WS;
+    return `M 0 ${w} L ${cx - R - 26} ${w}`
+      + ` Q ${cx - R - 6} ${w} ${cx - R + 2} ${w + 8}`
+      + ` Q ${cx + 4} ${w + 34} ${cx + R * 0.6} ${w + 40}`
+      + ` Q ${cx + R + 34} ${w + 44} ${cx + R + 58} ${w + 12}`
+      + ` Q ${cx + R + 74} ${w - 2} 366 ${w}`;
+  }
+  const pocketFill = () => `<path d="${pocketPath()} L 366 492 L 0 492 Z"`;
+
+  function faceCloseup(turn, inhale, u) {
+    const cx = FACE_CX, cy = FACE_CY, R = FACE_R;
+    let s = pocketFill() + ' fill="rgba(21,94,117,.10)" stroke="none"/>';
+    s += path(pocketPath(), C.surf, 1.6);
+    /* голова: круг на месте, черты лица провёрнуты вместе с корпусом */
+    s += circle(cx, cy, R, C.skin, C.ink, 1.7);
+    const g = `<g transform="rotate(${M.num(-turn)} ${cx} ${cy})">`;
+    let f = circle(cx - 13, cy - 7, 3, C.ink) + circle(cx + 6, cy - 7, 3, C.ink);
+    /* ухо: по нему видно, что на вдохе оно уходит в воду, а не выходит из неё */
+    f += `<ellipse cx="${M.num(cx - R + 3)}" cy="${M.num(cy + 2)}" rx="4" ry="7"`
+      + ` fill="none" stroke="${C.ink}" stroke-width="1.4"/>`;
+    const mx = cx - 3, my = cy + 15;
+    f += `<ellipse cx="${M.num(mx)}" cy="${M.num(my)}" rx="${M.num(inhale ? 6 : 4)}"`
+      + ` ry="${M.num(inhale ? 5 : 2.4)}" fill="#b3382e" opacity=".75"/>`;
+    s += g + f + '</g>';
+    /* рот после поворота — по нему ставим пузырьки и стрелку вдоха */
+    const a = -turn * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+    const rx = cx + (mx - cx) * ca - (my - cy) * sa;
+    const ry = cy + (mx - cx) * sa + (my - cy) * ca;
+    /* вода поверх погружённой части головы: та же ямка, полупрозрачно */
+    s += pocketFill() + ' fill="rgba(21,94,117,.22)" stroke="none"/>';
     if (!inhale) {
       for (let i = 0; i < 7; i++) {
         const t = (u * 3 + i * 0.14) % 1;
-        const bx = mx + 6 + i * 3 + Math.sin(t * 6 + i) * 4;
-        const by = my - t * 44;
-        if (by > ws - 38) s += circle(bx, by, 1.6 + (i % 3) * 0.7, 'rgba(21,94,117,.45)');
+        const bx = rx + 6 + i * 3 + Math.sin(t * 6 + i) * 4;
+        const by = ry - t * 42;
+        if (by > FACE_WS - 30) s += circle(bx, by, 1.6 + (i % 3) * 0.7, 'rgba(21,94,117,.45)');
       }
     } else {
-      s += line(mx + 36, my - 24, mx + 8, my - 4, C.green, 2, ' marker-end="url(#arrG)"');
-      s += text(mx + 42, my - 26, 'вдох ртом', C.green);
+      s += line(rx + 62, ry - 30, rx + 12, ry - 4, C.green, 2, ' marker-end="url(#arrG)"');
+      s += text(rx + 66, ry - 32, 'вдох ртом', C.green);
     }
+    s += text(cx + R + 12, FACE_WS + 58, '«воздушная ямка»', C.water, 10.5);
+    return s;
+  }
+
+  /* Врезка «крен корпуса»: поперечный срез плеч, вид сзади, вдоль дорожки.
+     Крен на виде сверху сам по себе читается плохо — силуэт просто становится
+     чуть уже и асимметричнее. Срез показывает то же самое движение прямо:
+     одно плечо поднимается к поверхности, второе уходит вглубь. Это не
+     фигура, а схема сечения, поэтому она и не строится моделью. */
+  function rollInset(x, y, w, h, roll) {
+    const cx = x + w / 2, ws = y + 52, cy = ws + 22, L = 28;
+    const a = roll * Math.PI / 180;
+    let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8"`
+      + ' fill="#fff" stroke="#d7dbe0"/>';
+    s += text(x + 10, y + 18, 'срез плеч, вид сзади', C.gray, 10.5);
+    s += `<rect x="${x + 1}" y="${M.num(ws)}" width="${w - 2}"`
+      + ` height="${M.num(y + h - ws - 1)}" fill="rgba(21,94,117,.10)"/>`;
+    s += line(x + 1, ws, x + w - 1, ws, C.surf, 1.4);
+    s += text(x + w - 8, ws - 6, 'поверхность', C.water, 10, 'end');
+    s += `<ellipse cx="${M.num(cx)}" cy="${M.num(cy)}" rx="${M.num(L * 0.94)}"`
+      + ` ry="${M.num(L * 0.54)}" transform="rotate(${M.num(roll)} ${M.num(cx)} ${M.num(cy)})"`
+      + ` fill="${C.skin}" stroke="${C.ink}" stroke-width="1.5"/>`;
+    const lx = cx - L * Math.cos(a), ly = cy - L * Math.sin(a);
+    const rx = cx + L * Math.cos(a), ry = cy + L * Math.sin(a);
+    s += line(lx, ly, rx, ry, C.ink, 2.2);
+    const up = roll >= 0 ? { x: lx, y: ly } : { x: rx, y: ry };
+    const dn = roll >= 0 ? { x: rx, y: ry } : { x: lx, y: ly };
+    s += circle(dn.x, dn.y, 3.6, C.ink);
+    s += circle(up.x, up.y, 4.6, C.green);
+    s += text(x + w / 2, y + h - 10, 'крен ' + Math.round(Math.abs(roll)) + '°',
+      C.water, 11, 'middle');
     return s;
   }
 
@@ -306,8 +425,15 @@
     { u: 0.90, shoulder: 150, shoulderPlane: 118, elbow: 24, elbowDir: 0 },
   ];
 
+  /* Разметка доски дыхания: две панели с явной границей.
+     Верх — вид сверху в воде, низ — крупный план головы спереди и столбик
+     объёма воздуха. Раньше границы между ними толком не было, верхняя панель
+     стояла на белом фоне, а фигура рисовалась моделью с профилем головы и
+     глазом: подпись обещала вид сверху, глаз показывал вид сбоку. */
+  const BR = { top: 316, botCut: 366, h: 492 };
+
   PE.reg('breath-cycle', {
-    w: 640, h: 450, frames: 60, period: 5000,
+    w: 640, h: BR.h, frames: 60, period: 5000,
     phases: [
       { to: 0.45, name: 'Выдох в воду', note: 'Лицо в воде, выдох непрерывный, через рот и нос. Выдох длиннее вдоха примерно вдвое — это главное отличие плавания от бега.' },
       { to: 0.58, name: 'Поворот к плечу', note: 'Голова поворачивается вместе с корпусом, а не поднимается. Одно ухо и одна щека остаются в воде.' },
@@ -315,10 +441,16 @@
       { to: 1.00, name: 'Возврат лица в воду', note: 'Голова возвращается в исходное положение раньше, чем рука войдёт в воду, и выдох начинается сразу.' },
     ],
     bg() {
-      return '<rect x="0" y="292" width="640" height="158" fill="rgba(21,94,117,.05)"/>'
-        + line(0, 292, 640, 292, C.gray, 0.9, ' stroke-dasharray="6 6"')
-        + text(8, 286, 'вверху — тело сверху; внизу — голова крупно и объём воздуха', C.gray)
-        + moveArrow(520, 24, 'движение');
+      /* верхняя панель — вода целиком: смотрим на пловца сверху */
+      /* подпись короткая: над ней проходит рука на проносе */
+      let s = waterTop(640, BR.top, { labelX: 14, label: 'вид сверху: пловец в воде' });
+      s += moveArrow(470, 196, 'движение');
+      /* граница панелей: сплошная линия и подписи, что где */
+      s += line(0, BR.top, 640, BR.top, C.ink, 1.6);
+      s += text(14, 338, 'внизу — вид спереди, навстречу пловцу: голова крупно', C.gray);
+      s += line(BR.botCut, BR.top + 6, BR.botCut, BR.h, C.gray, 0.9,
+        ' stroke-dasharray="5 6"');
+      return s;
     },
     draw(u) {
       /* поворот головы: 0 — лицо в воде, 90 — лицо к плечу */
@@ -335,45 +467,84 @@
       else vol = 1;
 
       let s = '';
-      /* ВЕРХ: тело сверху. Крен корпуса и поворот головы — разные углы одной
-         позы, и сразу видно, что голова доворачивается вместе с корпусом. */
+      /* ВЕРХ: тело сверху, в воде. Крен корпуса и поворот головы — разные
+         углы одной позы, и сразу видно, что голова доворачивается вместе с
+         корпусом. Голова нарисована с макушки: профиль и глаз в этой
+         проекции только сбивали бы с толку (см. headTop). */
       const roll = 30 * Math.sin(2 * Math.PI * (u - 0.32));
       const near = angAt(BREATH_ARM, u);
       const far = angAt(BREATH_ARM, (u + 0.5) % 1);
-      s += PE.figure({
+      /* Вдох делается на сторону той руки, которая в этот момент проносится
+         над водой: её плечо и так идёт вверх, доворачивать голову больше
+         некуда. Здесь набор BREATH_ARM попадает на пронос как раз в фазу
+         вдоха, поэтому он отдан ЛЕВОЙ руке — в ту же сторону, куда кренится
+         корпус (roll > 0 поднимает левое плечо) и поворачивается лицо.
+         Раньше он стоял на правой: пловец вдыхал в сторону плеча, которое в
+         этот момент уходило под воду. */
+      const pose = {
         roll, headTurn: turn * 0.85, headTilt: 6,
-        R: Object.assign({}, joints(near), kickCrawl(u * 3)),
-        L: Object.assign({}, joints(far), kickCrawl(u * 3 + 0.5)),
-      }, {
-        H: H * 0.80, view: 'top', x: 262, y: 152, near: 'R', board: 520,
-        where: 'breath-cycle / тело сверху',
-      });
-      s += text(20, 24, 'крен корпуса ' + Math.round(Math.abs(roll)) + '°', C.water);
-      s += text(430, 274, inhale ? 'вдох на повороте корпуса' : 'лицо в воде, выдох',
-        inhale ? C.green : C.water);
+        L: Object.assign({}, joints(near), kickCrawl(u * 3)),
+        R: Object.assign({}, joints(far), kickCrawl(u * 3 + 0.5)),
+      };
+      const o = {
+        H: H * 0.80, view: 'top', x: 246, y: 152, near: false, board: 520,
+        face: false, where: 'breath-cycle / тело сверху',
+      };
+      const res = PE.figure.solve(pose, o);
+      s += PE.figure.render(res, o);
+      /* на вдохе метка лица зелёная — тем же цветом, что и вся «фаза вдоха»
+         на доске: иначе поворот на вдох отличается от простого доворота при
+         крене только размером метки */
+      s += headTop(res, { color: inhale ? C.green : C.ink });
+      /* выдох: пузырьки выходят у лица и сносятся назад. Точка выхода взята
+         не «на глаз», а из модели: голова плюс направление взгляда, — иначе
+         при крене пузырьки оказывались посреди корпуса. */
+      if (!inhale) {
+        const R = res.P.headR * res.opts.H;
+        const fx = res.pts.face.x - res.pts.head.x;
+        const fy = res.pts.face.y - res.pts.head.y;
+        const fl = Math.hypot(fx, fy);
+        const ox = res.pts.head.x + (fl > R * 0.15 ? fx / fl * R * 1.15 : -R);
+        const oy = res.pts.head.y + (fl > R * 0.15 ? fy / fl * R * 1.15 : 0);
+        for (let i = 0; i < 6; i++) {
+          const t = (u * 3 + i * 0.17) % 1;
+          s += circle(ox - 8 - t * 46, oy + (i % 3) * 4 - 4,
+            1.5 + (i % 2), 'rgba(21,94,117,.45)');
+        }
+      }
+      s += text(14, 40, 'крен корпуса ' + Math.round(Math.abs(roll)) + '°'
+        + (Math.abs(roll) > 6 ? (roll > 0 ? ': левое плечо вверх'
+          : ': правое плечо вверх') : ''), C.water);
+      s += text(14, 58, inhale ? 'голова довёрнута к плечу: вдох'
+        : u < 0.45 ? 'макушка вверх, лицо в воде: выдох'
+          : u < 0.58 ? 'голова доворачивается к плечу'
+            : 'лицо возвращается в воду', inhale ? C.green : C.water);
+      s += rollInset(470, 10, 160, 126, roll);
+      s += text(470, 154, 'зелёное плечо — то,', C.gray, 10.5);
+      s += text(470, 168, 'что идёт к поверхности', C.gray, 10.5);
+      s += text(14, 296, 'плечи и голова поворачиваются вместе', C.gray);
 
-      /* НИЗ СЛЕВА: голова крупно */
-      const ws = 332;
-      s += line(20, ws, 300, ws, C.water, 1.4);
-      s += text(20, ws - 6, 'уровень воды', C.water, 10.5);
-      s += faceCloseup(160, 366, turn, inhale, u, ws);
-      s += text(20, 424, inhale ? 'одно ухо остаётся в воде'
+      /* НИЗ СЛЕВА: голова крупно, вид спереди */
+      s += faceCloseup(turn, inhale, u);
+      s += text(14, 464, inhale ? 'нижнее ухо остаётся в воде'
         : 'выдох непрерывный, в воду', C.water);
-      s += text(20, 440, 'голова поворачивается, а не поднимается', C.gray);
+      s += text(14, 482, 'голова поворачивается, а не поднимается', C.gray);
 
       /* НИЗ СПРАВА: столбик объёма воздуха */
-      const top = 418 - vol * 76;
-      s += `<rect x="392" y="${M.num(top)}" width="46" height="${M.num(418 - top)}"`
+      const top = 446 - vol * 76;
+      s += `<rect x="404" y="${M.num(top)}" width="46" height="${M.num(446 - top)}"`
         + ` fill="${inhale ? '#1a7f37' : '#155e75'}" opacity=".35"/>`;
-      s += `<rect x="392" y="338" width="46" height="80" fill="none" stroke="${C.gray}" stroke-width="1.1"/>`;
-      s += text(392, 332, 'объём воздуха в лёгких', C.gray);
-      s += text(384, top + 4, inhale ? 'вдох: наполняются' : 'выдох: опустошаются',
+      s += `<rect x="404" y="366" width="46" height="80" fill="none" stroke="${C.gray}" stroke-width="1.1"/>`;
+      s += text(380, 356, 'объём воздуха в лёгких', C.gray);
+      s += text(396, top + 4, inhale ? 'вдох:' : 'выдох:',
         inhale ? C.green : C.water, 11, 'end');
-      s += text(448, 400, 'полный выдох освобождает', C.gray);
-      s += text(448, 414, 'место для следующего вдоха', C.gray);
+      s += text(396, top + 18, inhale ? 'наполняются' : 'опустошаются',
+        inhale ? C.green : C.water, 11, 'end');
+      s += text(462, 446, 'полный выдох освобождает', C.gray);
+      s += text(462, 460, 'место для следующего вдоха', C.gray);
       return s;
     },
-    caption: 'Дыхательный цикл в кроле. Вверху — тело сверху: видно, что голова доворачивается вместе с корпусом и вдох приходится на конец гребка. Внизу — голова крупно и объём воздуха в лёгких. Остановите анимацию на фазе вдоха и посмотрите, где ухо: оно не выходит из воды.',
+    caption: 'Дыхательный цикл в кроле. Вверху — вид сверху: пловец в воде, видна макушка, а на вдохе голова доворачивается к плечу вместе с корпусом; врезка справа показывает тот же крен в поперечном срезе. Внизу — вид спереди: голова крупно и столбик объёма воздуха в лёгких. Остановите анимацию на фазе вдоха и посмотрите, где ухо: оно не выходит из воды, а рот попадает в углубление, которое голова образует в набегающей воде.',
   });
 
   /* ================= 3. Скольжение и торможение ================= */
@@ -591,21 +762,24 @@
       { to: 1.00, name: 'Смыкание', note: 'Ноги смыкаются вместе, тело вытягивается в линию. Пауза.' },
     ],
     bg() {
-      return '<rect x="0" y="0" width="640" height="260" fill="rgba(21,94,117,.04)"/>'
+      return waterTop(640, 260, { label: false })
         + line(0, 130, 640, 130, C.gray, 0.9, ' stroke-dasharray="6 6"')
         + text(8, 124, 'ось тела', C.gray)
         + moveArrow(520, 30, 'движение')
+        + text(8, 20, 'вид сверху: смотрим на пловца с бортика, сквозь воду', C.water)
         + text(8, 250, 'вид сверху — та же поза, что и на схеме сбоку, другая проекция', C.gray);
     },
     draw(u) {
       const leg = kickBreast(u);
-      let s = PE.figure({
+      const o = {
+        H: H, view: 'top', x: 342, y: 130, near: false, face: false,
+        where: 'legs-breast / сверху',
+      };
+      const r = PE.figure.solve({
         headTilt: 10,
         both: Object.assign({}, ARMS_FRONT, leg),
-      }, {
-        H: H, view: 'top', x: 342, y: 130, near: false,
-        where: 'legs-breast / сверху',
-      });
+      }, o);
+      let s = PE.figure.render(r, o) + headTop(r);
       if (u >= 0.5 && u < 0.8) {
         s += path('M 236 60 Q 276 42 316 66', C.green, 2, 'none', ' marker-end="url(#arrG)"');
         s += text(182, 54, 'дуга сведения', C.green);
