@@ -784,13 +784,27 @@
     for (const ch of parts.chains) {
       if (!ch.near) s += group(chainShapes(ch.lines), farFill, farC, g);
     }
-    if (parts.torso) s += group([{ t: 'p', d: smooth(parts.torso) }], fill, ink, g);
+    const h = parts.head;
+    /* Шея на виде СВЕРХУ смотрится вдоль себя и целиком лежит внутри силуэта
+       корпуса: сверху между плечами и головой видны только плечи и голова.
+       Нарисованная своей группой ПОВЕРХ корпуса, она давала внутри силуэта
+       замкнутый контур-капсулу — и он читался как отдельный «блок плеча»,
+       на который наползает круг головы. Поэтому сверху шея входит в ту же
+       группу, что и корпус, и сливается с ним (внутренние швы закрывает
+       вторая заливка группы), а голова ложится поверх.
+       Сбоку шея видна вся и остаётся в группе головы: там их общий контур и
+       делает переход к подбородку. */
+    const neckInBody = !!(h && parts.torso && res.opts.view === 'top');
+    if (parts.torso) {
+      const body = [{ t: 'p', d: smooth(parts.torso) }];
+      if (neckInBody) for (const q of chainShapes([h.neck])) body.push(q);
+      s += group(body, fill, ink, g);
+    }
     for (const ch of parts.chains) {
       if (ch.near) s += group(chainShapes(ch.lines), fill, ink, g);
     }
-    const h = parts.head;
     if (h) {
-      const shapes = chainShapes([h.neck]);
+      const shapes = neckInBody ? [] : chainShapes([h.neck]);
       /* Голова — либо профиль (в нём нос и подбородок выходят за череп, а
          челюсть, наоборот, поднутряет), либо просто круг, если лица в этой
          проекции не видно. Круг вместе с профилем рисовать нельзя: он
